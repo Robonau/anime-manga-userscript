@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name         anime/manga link to other sites
-// @version      1.2
+// @version      1.3
 // @description  add kitsu/mangaupdates/myanimelist etc buttons to pages
 // @author       robo
 // @include      https://kitsu.io/*
@@ -12,12 +12,86 @@
 // @grant        GM_addStyle
 // @grant        GM_xmlhttpRequest
 // @grant        GM.xmlHttpRequest
+// @grant        GM_getValue
+// @grant        GM_setValue
+// @grant        GM_registerMenuCommand
 // @require      https://gist.github.com/raw/2625891/waitForKeyElements.js
 // @require      https://code.jquery.com/jquery-3.5.1.js
 // @require      https://unpkg.com/gmxhr-fetch
+// @require      https://raw.githubusercontent.com/odyniec/MonkeyConfig/master/monkeyconfig.js
+// @history      1.3 add config to enable/disable 
 // ==/UserScript==
 
-/* globals jQuery, $, waitForKeyElements, gmfetch */
+/* globals jQuery, $, waitForKeyElements, gmfetch, MonkeyConfig*/
+
+let cfg = new MonkeyConfig({
+    title: '',
+    menuCommand: true,
+    params: {
+        kitsu: {
+            type: 'checkbox',
+            default: true
+        },
+        myanimelist: {
+            type: 'checkbox',
+            default: true
+        },
+        anilist: {
+            type: 'checkbox',
+            default: true
+        },
+        animeplanet: {
+            type: 'checkbox',
+            default: true
+        },
+        mangaupdates: {
+            type: 'checkbox',
+            default: true
+        },
+        madara: {
+            type: 'checkbox',
+            default: true
+        },
+        nelo_Kakalot: {
+            type: 'checkbox',
+            default: true
+        },
+        nyaa: {
+            type: 'checkbox',
+            default: true
+        },
+        livechart: {
+            type: 'checkbox',
+            default: true
+        },
+        animefreak: {
+            type: 'checkbox',
+            default: true
+        },
+        animefever: {
+            type: 'checkbox',
+            default: true
+        },
+        animehub: {
+            type: 'checkbox',
+            default: true
+        },
+        animevibe: {
+            type: 'checkbox',
+            default: true
+        },
+        anidb: {
+            type: 'checkbox',
+            default: true
+        },
+        animepahe: {
+            type: 'checkbox',
+            default: true
+        },
+    },
+});
+
+
 let num = 0;
 let inafter = '';
 let tittle = '';
@@ -25,7 +99,6 @@ let madaralist = [
     {url:'https://isekaiscan.com/',fav:'https://isekaiscan.com/wp-content/uploads/2019/01/50306s4.png'},
     {url:'https://mangakomi.com/',fav:'https://mangakomi.com/wp-content/uploads/2019/12/cropped-1ZzMnJA2_400x400.jpg'}
 ];
-
 let nelo_Kakalott = [
     {url:'https://manganelo.com/getstorysearchjson',fav:'https://manganelo.com/favicon.png'},
     {url:'https://mangakakalot.com/home_json_search',fav:'https://mangakakalot.com/favicon.ico'}
@@ -39,16 +112,16 @@ if (window.location.href.includes("https://www.anime-planet.com")){
         tittle = $('#siteContainer > h1')[0].textContent.trim()
         if (window.location.href.includes("/manga/")){
             kitsu('manga');
-            mangaupdates();
-            anilist('manga');
-            myanimelist('manga')
+            cfg.get('mangaupdates') ? mangaupdates() : null;
+            cfg.get('anilist') ? anilist('manga') : null;
+            cfg.get('myanimelist') ? myanimelist('manga') : null
             doAllManga();
         }else if(window.location.href.includes("/anime/")){
             doAllAnime();
-            kitsu('anime');
-            myanimelist('anime')
-            anilist('anime');
-            anidb();
+            cfg.get('kitsu') ? kitsu('anime') : null;
+            cfg.get('myanimelist') ? myanimelist('anime') : null
+            cfg.get('anilist') ? anilist('anime') : null;
+            cfg.get('anidb') ? anidb() : null;
         }
     }
 }
@@ -57,17 +130,17 @@ else if (window.location.href.includes("https://kitsu.io")){
         inafter = $('section.media--title')[0]
         tittle = $('section.media--title h3')[0].textContent.trim()
         if (window.location.href.includes("/manga/")){
-            mangaupdates();
-            anilist('manga');
-            myanimelist('manga')
-            animeplanet('manga')
+            cfg.get('mangaupdates') ? mangaupdates() : null;
+            cfg.get('anilist') ? anilist('manga') : null;
+            cfg.get('myanimelist') ? myanimelist('manga') : null
+            cfg.get('animeplanet') ? animeplanet('manga') : null
             doAllManga();
         }else if(window.location.href.includes("/anime/")){
             doAllAnime();
-            myanimelist('anime')
-            anilist('anime');
-            animeplanet('anime')
-            anidb();
+            cfg.get('myanimelist') ? myanimelist('anime') : null
+            cfg.get('anilist') ? anilist('anime') : null;
+            cfg.get('animeplanet') ? animeplanet('anime') : null
+            cfg.get('anidb') ? anidb() : null;
         }
     }))
 }
@@ -75,9 +148,9 @@ else if (window.location.href.includes("https://www.mangaupdates.com/series.html
     inafter = $('#main_content div.col-12.p-2')[0]
     tittle = $('span.releasestitle')[0].textContent.trim()
     kitsu('manga');
-    anilist('manga');
-    myanimelist('manga')
-    animeplanet('manga')
+    cfg.get('anilist') ? anilist('manga') : null;
+    cfg.get('myanimelist') ? myanimelist('manga') : null
+    cfg.get('animeplanet') ? animeplanet('manga') : null
     doAllManga();
 }
 else if (window.location.href.includes("https://myanimelist.net/")){
@@ -85,16 +158,16 @@ else if (window.location.href.includes("https://myanimelist.net/")){
     tittle = $('[itemprop="name"]')[0].childNodes[0].textContent
     if (window.location.href.includes("/manga/")){
         kitsu('manga');
-        mangaupdates();
-        anilist('manga');
-        animeplanet('manga')
+        cfg.get('mangaupdates') ? mangaupdates() : null;
+        cfg.get('anilist') ? anilist('manga') : null;
+        cfg.get('animeplanet') ? animeplanet('manga') : null
         doAllManga();
     }else if(window.location.href.includes("/anime/")){
         doAllAnime();
-        kitsu('anime');
-        anilist('anime');
-        animeplanet('anime')
-        anidb();
+        cfg.get('kitsu') ? kitsu('anime') : null;
+        cfg.get('anilist') ? anilist('anime') : null;
+        cfg.get('animeplanet') ? animeplanet('anime') : null
+        cfg.get('anidb') ? anidb() : null;
     }
 }
 else if (window.location.href.includes("https://anilist.co")){
@@ -103,16 +176,16 @@ else if (window.location.href.includes("https://anilist.co")){
         tittle = $('h1')[0].textContent.trim()
         if (window.location.href.includes("/manga/")){
             kitsu('manga');
-            mangaupdates();
-            myanimelist('manga')
-            animeplanet('manga')
+            cfg.get('mangaupdates') ? mangaupdates() : null;
+            cfg.get('myanimelist') ? myanimelist('manga') : null
+            cfg.get('animeplanet') ? animeplanet('manga') : null
             doAllManga();
         }else if(window.location.href.includes("/anime/")){
             doAllAnime();
-            kitsu('anime');
-            myanimelist('anime')
-            animeplanet('anime')
-            anidb();
+            cfg.get('kitsu') ? kitsu('anime') : null;
+            cfg.get('myanimelist') ? myanimelist('anime') : null
+            cfg.get('animeplanet') ? animeplanet('anime') : null
+            cfg.get('anidb') ? anidb() : null;
         }
     }))
 }
@@ -120,24 +193,24 @@ else if (window.location.href.includes("https://anidb.net/anime/")){
     inafter = $('#layout-main > h1')[0]
     tittle = $('#tab_1_pane > div > table > tbody > tr > td > span')[0].textContent.trim()
     doAllAnime();
-    kitsu('anime');
-    myanimelist('anime')
-    animeplanet('anime')
-    anilist('anime');
+    cfg.get('kitsu') ? kitsu('anime') : null;
+    cfg.get('myanimelist') ? myanimelist('anime') : null
+    cfg.get('animeplanet') ? animeplanet('anime') : null
+    cfg.get('anilist') ? anilist('anime') : null;
 }
 function doAllAnime(){
-    animefreak();
-    animefever();
-    livechart();
-    nyaa();
-    animehub();
-    animevibe();
-    animepahe();
+	cfg.get('animefreak') ? animefreak() : null
+	cfg.get('animefever') ? animefever() : null
+    cfg.get('livechart') ? livechart() : null
+    cfg.get('nyaa') ? nyaa() : null
+    cfg.get('animehub') ? animehub() : null
+    cfg.get('animevibe') ? animevibe() : null;
+    cfg.get('animepahe') ? animepahe() : null
 }
 
 function doAllManga(){
-    madaralist.forEach(element => madara(element.url,element.fav))
-    nelo_Kakalott.forEach(element => nelo_Kakalot(element.url,element.fav))
+	cfg.get('madara') ? madaralist.forEach(element => madara(element.url,element.fav)) : null
+	cfg.get('nelo_Kakalot') ? nelo_Kakalott.forEach(element => nelo_Kakalot(element.url,element.fav)) : null
 }
 
 //set css styles
