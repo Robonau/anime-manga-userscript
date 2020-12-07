@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         anime/manga link to other sites
 // @namespace    https://github.com/Robonau/anime-manga-userscript
-// @version      1.5.3
+// @version      1.5.4
 // @description  add kitsu/mangaupdates/myanimelist etc buttons to pages
 // @author       robo
 // @include      https://kitsu.io/*
@@ -62,6 +62,8 @@ let sites = [
     {name:'bato',Vdef:1,Hdef:0},
     {name:'fanfox',Vdef:1,Hdef:0},
     {name:'crunchyroll',Vdef:1,Hdef:0},
+    {name:'funimation',Vdef:1,Hdef:0},
+    {name:'9anime',Vdef:1,Hdef:0},
 ]
 
 let endis = {}
@@ -220,6 +222,8 @@ function doAllAnime(){
     cfg.get('animedao') ? animedao() : null
     cfg.get('gogoanime') ? gogoanime() : null
     cfg.get('crunchyroll') ? crunchyroll() : null
+    cfg.get('funimation') ? funimation() : null
+    cfg.get('9anime') ? nineanime() : null
 }
 
 function doAllManga(){
@@ -577,6 +581,27 @@ async function crunchyroll() {
 <p>${ele.name}</p>
 </a>`)
     button (appvall('https://www.crunchyroll.com/favicons/favicon-16x16.png', txt,hcfg.get('crunchyroll')),vcfg.get('crunchyroll'),hcfg.get('crunchyroll'))
+}
+
+async function funimation() {
+    let data = await fetchDOM(new Request('https://www.funimation.com/pred-search/'+tittle))
+    let txt = [...data.querySelectorAll('source')].map(ele => `
+<a href="https://www.funimation.com${ele.parentElement.pathname}">
+<img src = "${ele.dataset.src}">
+<p>${ele.title.trim()}</p>
+</a>`)
+    button (appvall('https://static.funimation.com/static/img/favicon.ico?v=1607308407.2988396', txt,hcfg.get('funimation')),vcfg.get('funimation'),hcfg.get('funimation'))
+}
+
+async function nineanime() {
+    let data = await fetchJSON(new Request('https://www12.9anime.to/ajax/anime/search?keyword='+tittle))
+    let dom = createDOM(data.html)
+    let txt = [...dom.querySelectorAll('a source')].map(ele => `
+<a href="https://www.funimation.com${ele.parentElement.pathname}">
+<img src = "${ele.src}">
+<p>${ele.nextElementSibling.querySelector('div').textContent.trim()}</p>
+</a>`)
+    button (appvall('https://www12.9anime.to/assets/9anime/favicons/favicon.png?v1', txt,hcfg.get('9anime')),vcfg.get('9anime'),hcfg.get('9anime'))
 }
 
 // functions
