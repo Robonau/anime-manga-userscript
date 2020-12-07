@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name         anime/manga link to other sites
-// @version      1.4.1
+// @version      1.4.2
 // @description  add kitsu/mangaupdates/myanimelist etc buttons to pages
 // @author       robo
 // @include      https://kitsu.io/*
@@ -22,12 +22,13 @@
 // @history      1.3 add config to enable/disable
 // @history      1.4 add more sites
 // @history      1.4.1 refresh on save config
+// @history      1.4.2 split nelo/kalot
 // ==/UserScript==
 
 /* globals jQuery, $, waitForKeyElements, gmfetch, MonkeyConfig*/
 
 let cfg = new MonkeyConfig({
-    title: '',
+    title: 'enable/disable',
     menuCommand: true,
     params: {
         kitsu: {
@@ -47,10 +48,6 @@ let cfg = new MonkeyConfig({
             default: true
         },
         mangaupdates: {
-            type: 'checkbox',
-            default: true
-        },
-        nelo_Kakalot: {
             type: 'checkbox',
             default: true
         },
@@ -106,6 +103,14 @@ let cfg = new MonkeyConfig({
             type: 'checkbox',
             default: true
         },
+        manganelo: {
+            type: 'checkbox',
+            default: true
+        },
+        mangakakalot: {
+            type: 'checkbox',
+            default: true
+        },
     },
     onSave: setOptions
 });
@@ -117,6 +122,7 @@ function setOptions() {
 let num = 0;
 let inafter = '';
 let tittle = '';
+
 let madaralist = []
 cfg.get('isekaiscan') ? madaralist.push({url:'https://isekaiscan.com/',fav:'https://isekaiscan.com/wp-content/uploads/2019/01/50306s4.png'}) : null;
 cfg.get('mangakomi') ? madaralist.push({url:'https://mangakomi.com/',fav:'https://mangakomi.com/wp-content/uploads/2019/12/cropped-1ZzMnJA2_400x400.jpg'}) : null;
@@ -125,10 +131,9 @@ cfg.get('zinmanga') ? madaralist.push({url:'https://zinmanga.com/',fav:'https://
 cfg.get('wuxiaworld') ? madaralist.push({url:'https://wuxiaworld.site/',fav:'https://wuxiaworld.b-cdn.net/wp-content/uploads/2019/04/favicon-1.ico'}) : null;
 
 
-let nelo_Kakalott = [
-    {url:'https://manganelo.com/getstorysearchjson',fav:'https://manganelo.com/favicon.png'},
-    {url:'https://mangakakalot.com/home_json_search',fav:'https://mangakakalot.com/favicon.ico'}
-]
+let nelo_Kakalott = []
+cfg.get('manganelo') ? nelo_Kakalott.push({url:'https://manganelo.com/getstorysearchjson',fav:'https://manganelo.com/favicon.png'}) : null;
+cfg.get('mangakakalot') ? nelo_Kakalott.push({url:'https://mangakakalot.com/home_json_search',fav:'https://mangakakalot.com/favicon.ico'}) : null;
 
 //decide if anime or manga page, also add style
 
@@ -236,7 +241,7 @@ function doAllAnime(){
 
 function doAllManga(){
 	madaralist.forEach(element => madara(element.url,element.fav))
-	cfg.get('nelo_Kakalot') ? nelo_Kakalott.forEach(element => nelo_Kakalot(element.url,element.fav)) : null
+	nelo_Kakalott.forEach(element => nelo_Kakalot(element.url,element.fav))
 }
 
 //set css styles
