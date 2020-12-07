@@ -1,5 +1,6 @@
 // ==UserScript==
 // @name         anime/manga link to other sites
+// @namespace    https://github.com/Robonau/anime-manga-userscript
 // @version      1.5.1
 // @description  add kitsu/mangaupdates/myanimelist etc buttons to pages
 // @author       robo
@@ -26,6 +27,29 @@
 // @history      1.4.3 add some sites
 // @history      1.5 add configurable priorities for vertical and horizontal
 // @history      1.5.1 dealt with negative priorities
+// @connect      kitsu.io
+// @connect      mangaupdates.com
+// @connect      myanimelist.net
+// @connect      anilist.co
+// @connect      nyaa.si
+// @connect      anime-planet.com
+// @connect      livechart.me
+// @connect      isekaiscan.com
+// @connect      mangakomi.com
+// @connect      animefreak.tv
+// @connect      animefever.tv
+// @connect      animehub.ac
+// @connect      animevibe.wtf
+// @connect      anidb.net
+// @connect      manganelo.com
+// @connect      mangakakalot.com
+// @connect      animepahe.com
+// @connect      mangatx.com
+// @connect      zinmanga.com
+// @connect      b-cdn.net
+// @connect      wuxiaworld.site
+// @connect      mangafast.net
+// @connect      animedao.to
 // ==/UserScript==
 
 /* globals jQuery, $, waitForKeyElements, gmfetch, MonkeyConfig*/
