@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name         anime/manga link to other sites
-// @version      1.5
+// @version      1.5.1
 // @description  add kitsu/mangaupdates/myanimelist etc buttons to pages
 // @author       robo
 // @include      https://kitsu.io/*
@@ -25,6 +25,7 @@
 // @history      1.4.2 split nelo/kalot
 // @history      1.4.3 add some sites
 // @history      1.5 add configurable priorities for vertical and horizontal
+// @history      1.5.1 dealt with negative priorities
 // ==/UserScript==
 
 /* globals jQuery, $, waitForKeyElements, gmfetch, MonkeyConfig*/
@@ -82,6 +83,10 @@ let sites = [
         params: Hpriority,
         onSave: setOptions
     });
+    
+    let minV = sites.map(ele => vcfg.get(ele.name))
+    
+    let minH = sites.map(ele => hcfg.get(ele.name))
     
     function setOptions() {
         location.reload();
@@ -490,8 +495,6 @@ let sites = [
     
     async function animedao() {
         let data = await fetchDOM(new Request('https://animedao.to/search/?key='+tittle))
-        console.log(data)
-        console.log(data.querySelectorAll('body > div.container.content > div:nth-child(2) > div > a')[0])
         let txt = [...data.querySelectorAll('body > div.container.content > div:nth-child(2) > div > a')].map(ele => `
                     <a href="https://animedao.to${ele.pathname}">
                         <img src = "https://animedao.to/${ele.querySelector('source').dataset.src}">
@@ -511,7 +514,7 @@ let sites = [
         button (appvall('https://cdn.gogocdn.net/files/gogo/img/favicon.ico', txt,hcfg.get('gogoanime')),vcfg.get('gogoanime'),hcfg.get('gogoanime'))
     }
     
-    //necessary functions
+    // functions
     
     window.onclick = function(event) {
         if (!event.target.matches('.dropbtn1')) {
@@ -525,8 +528,6 @@ let sites = [
         }
     }
     
-    //just some useful functions
-    
     function appvall(fav,txt,hth){
         num++
         return `<div class="dropdown1 h${hth}"><img id="dropbtnn${num}" class="dropbtn1" src = "${fav}"></img><div id="myDropdown${num}" class="dropdown1-content">${txt.join(' ')}</div></div>`
@@ -537,31 +538,30 @@ let sites = [
     }
     
     function button (appval,vnth,hnth){
-        if (vnth < 0 || hnth < 0){alert('priorities cant be below 0')}
-        if ($('div.aka.'+vnth).length){
+        if ($('div.aka.v'+vnth).length){
             let truu = true
             let ele = document.createElement("div")
             ele.innerHTML = appval
-            for (let i = hnth; i >= 0; i--) {
-                if($('div.aka.'+vnth+' > .h'+i).length){
+            for (let i = hnth; i >= Math.min(...minH); i--) {
+                if($('div.aka.v'+vnth+' > .h'+i).length){
                     truu = false
-                    insertAfter(ele.querySelector('div.dropdown1'),$('div.aka.'+vnth+' > .h'+i)[0])
+                    insertAfter(ele.querySelector('div.dropdown1'),$('div.aka.v'+vnth+' > .h'+i)[0])
                     break
                 }
             }
             if(truu){
-                $('div.aka.'+vnth+' div')[0].parentNode.insertBefore(ele.querySelector('div.dropdown1'), $('div.aka.'+vnth+' div')[0]);
+                $('div.aka.v'+vnth+' div')[0].parentNode.insertBefore(ele.querySelector('div.dropdown1'), $('div.aka.v'+vnth+' div')[0]);
             }
         }
         else{
             let ele = document.createElement("div")
-            ele.className = 'aka '+vnth
+            ele.className = 'aka v'+vnth
             ele.innerHTML = appval
             let tru = true
-            for (let i = vnth; i >= 0; i--) {
-                if($('div.aka.'+(i)).length){
+            for (let i = vnth; i >= Math.min(...minV); i--) {
+                if($('div.aka.v'+(i)).length){
                     tru = false
-                    insertAfter(ele, $('div.aka.'+(i))[0]);
+                    insertAfter(ele, $('div.aka.v'+(i))[0]);
                     break
                 }
             }
