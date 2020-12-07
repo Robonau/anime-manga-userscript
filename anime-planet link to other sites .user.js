@@ -28,29 +28,8 @@
 // @history      1.5 add configurable priorities for vertical and horizontal
 // @history      1.5.1 dealt with negative priorities
 // @history      1.5.2 add some stuff
-// @connect      kitsu.io
-// @connect      mangaupdates.com
-// @connect      myanimelist.net
-// @connect      anilist.co
-// @connect      nyaa.si
-// @connect      anime-planet.com
-// @connect      livechart.me
-// @connect      isekaiscan.com
-// @connect      mangakomi.com
-// @connect      animefreak.tv
-// @connect      animefever.tv
-// @connect      animehub.ac
-// @connect      animevibe.wtf
-// @connect      anidb.net
-// @connect      manganelo.com
-// @connect      mangakakalot.com
-// @connect      animepahe.com
-// @connect      mangatx.com
-// @connect      zinmanga.com
-// @connect      b-cdn.net
-// @connect      wuxiaworld.site
-// @connect      mangafast.net
-// @connect      animedao.to
+// @history      1.5.4 add a bunch of sites
+// @connect      *
 // ==/UserScript==
 
 /* globals jQuery, $, waitForKeyElements, gmfetch, MonkeyConfig*/
@@ -78,8 +57,13 @@ let sites = [
     {name:'anidb',Vdef:0,Hdef:0},
     {name:'animepahe',Vdef:1,Hdef:0},
     {name:'animedao',Vdef:1,Hdef:0},
-    {name:'gogoanime',Vdef:1,Hdef:0}
+    {name:'gogoanime',Vdef:1,Hdef:0},
+    {name:'mangareader',Vdef:1,Hdef:0},
+    {name:'bato',Vdef:1,Hdef:0},
+    {name:'fanfox',Vdef:1,Hdef:0},
+    {name:'crunchyroll',Vdef:1,Hdef:0},
 ]
+
 let endis = {}
 let Vpriority= {}
 let Hpriority= {}
@@ -113,9 +97,7 @@ let minV = sites.map(ele => vcfg.get(ele.name))
 
 let minH = sites.map(ele => hcfg.get(ele.name))
 
-function setOptions() {
-    location.reload();
-}
+function setOptions() {location.reload();}
 
 let num = 0;
 let inafter = '';
@@ -139,7 +121,7 @@ if (window.location.href.includes("https://www.anime-planet.com")){
         inafter = $('#siteContainer > nav')[0].previousElementSibling
         tittle = $('#siteContainer > h1')[0].textContent.trim()
         if (window.location.href.includes("/manga/")){
-            kitsu('manga');
+            cfg.get('kitsu') ? kitsu('manga') : null;
             cfg.get('mangaupdates') ? mangaupdates() : null;
             cfg.get('anilist') ? anilist('manga') : null;
             cfg.get('myanimelist') ? myanimelist('manga') : null
@@ -175,7 +157,7 @@ else if (window.location.href.includes("https://kitsu.io")){
 else if (window.location.href.includes("https://www.mangaupdates.com/series.html")){
     inafter = $('#main_content div.col-12.p-2')[0]
     tittle = $('span.releasestitle')[0].textContent.trim()
-    kitsu('manga');
+    cfg.get('kitsu') ? kitsu('manga') : null;
     cfg.get('anilist') ? anilist('manga') : null;
     cfg.get('myanimelist') ? myanimelist('manga') : null
     cfg.get('animeplanet') ? animeplanet('manga') : null
@@ -185,7 +167,7 @@ else if (window.location.href.includes("https://myanimelist.net/")){
     inafter = $('[itemprop="name"]')[0]
     tittle = $('[itemprop="name"]')[0].childNodes[0].textContent
     if (window.location.href.includes("/manga/")){
-        kitsu('manga');
+        cfg.get('kitsu') ? kitsu('manga') : null;
         cfg.get('mangaupdates') ? mangaupdates() : null;
         cfg.get('anilist') ? anilist('manga') : null;
         cfg.get('animeplanet') ? animeplanet('manga') : null
@@ -203,7 +185,7 @@ else if (window.location.href.includes("https://anilist.co")){
         inafter = $('h1')[0]
         tittle = $('h1')[0].textContent.trim()
         if (window.location.href.includes("/manga/")){
-            kitsu('manga');
+            cfg.get('kitsu') ? kitsu('manga') : null;
             cfg.get('mangaupdates') ? mangaupdates() : null;
             cfg.get('myanimelist') ? myanimelist('manga') : null
             cfg.get('animeplanet') ? animeplanet('manga') : null
@@ -226,6 +208,7 @@ else if (window.location.href.includes("https://anidb.net/anime/")){
     cfg.get('animeplanet') ? animeplanet('anime') : null
     cfg.get('anilist') ? anilist('anime') : null;
 }
+
 function doAllAnime(){
     cfg.get('animefreak') ? animefreak() : null
     cfg.get('animefever') ? animefever() : null
@@ -236,12 +219,16 @@ function doAllAnime(){
     cfg.get('animepahe') ? animepahe() : null
     cfg.get('animedao') ? animedao() : null
     cfg.get('gogoanime') ? gogoanime() : null
+    cfg.get('crunchyroll') ? crunchyroll() : null
 }
 
 function doAllManga(){
     madaralist.forEach(element => madara(element))
     nelo_Kakalott.forEach(element => nelo_Kakalot(element))
     cfg.get('mangafast') ? mangafast() : null
+    cfg.get('mangareader') ? mangareader() : null
+    cfg.get('bato') ? bato() : null
+    cfg.get('fanfox') ? fanfox() : null
 }
 
 //set css styles
@@ -427,6 +414,36 @@ async function mangafast() {
     button (appvall('https://mangafast.net/icon.ico', txt,hcfg.get('mangafast')),vcfg.get('mangafast'),hcfg.get('mangafast'))
 }
 
+async function mangareader() {
+    let data = await fetchDOM(new Request('https://www.mangareader.net/search/?nsearch='+tittle))
+    let txt = [...data.querySelectorAll('.d54')].map(ele => `
+<a href="https://www.mangareader.net/${ele.querySelector('a').pathname}">
+<img src = "${ele.querySelector('.d56').dataset.src}">
+<p>${ele.querySelector('a').text.trim()}</p>
+</a>`)
+    button (appvall2('https://s11.mangareader.net/images/icons/mr-192.png', txt,hcfg.get('mangareader')),vcfg.get('mangareader'),hcfg.get('mangareader'))
+}
+
+async function bato() {
+    let data = await fetchDOM(new Request('https://bato.to/search?word='+tittle))
+    let txt = [...data.querySelectorAll('#series-list > div')].map(ele => `
+<a href="https://bato.to${ele.querySelector('a').pathname}">
+<img src = "${ele.querySelector('source').src}">
+<p>${ele.querySelector('a.item-title').text.trim()}</p>
+</a>`)
+    button (appvall('https://static.animemark.com/img/batoto/favicon.ico?v0', txt,hcfg.get('bato')),vcfg.get('bato'),hcfg.get('bato'))
+}
+
+async function fanfox() {
+    let data = await fetchDOM(new Request('http://fanfox.net/search?title='+tittle))
+    let txt = [...data.querySelectorAll('li > a')].map(ele => `
+<a href="https://fanfox.net${ele.pathname}">
+<img src = "${ele.querySelector('source').src}">
+<p>${ele.title.trim()}</p>
+</a>`)
+    button (appvall('http://fanfox.net/favicon.ico', txt,hcfg.get('fanfox')),vcfg.get('fanfox'),hcfg.get('fanfox'))
+}
+
 //anime only:
 
 async function nyaa() {
@@ -436,12 +453,12 @@ async function nyaa() {
 <p>${ele.querySelector('[colspan] a:last-child').textContent.trim().replaceAll('_', ' ')}</p>
 <p>${ele.querySelector('td:nth-child(6)').textContent}seeds</p>
 </a>`)
-    button (appvall('https://nyaa.si/static/favicon.png', txt,hcfg.get('nyaa')),vcfg.get('nyaa'),hcfg.get('nyaa'))
+    button (appvall2('https://nyaa.si/static/favicon.png', txt,hcfg.get('nyaa')),vcfg.get('nyaa'),hcfg.get('nyaa'))
 }
 
 async function livechart() {
     let data = await fetchDOM(new Request('https://www.livechart.me/feeds/episodes'))
-    let txt = [...data.querySelectorAll('item')].slice(0,10).map(ele => `
+    let txt = [...data.querySelectorAll('item')].map(ele => `
 <a href="${ele.querySelector('link').nextSibling.data.trim()}">
 <img src = "${ele.querySelector('enclosure').getAttribute('url')}">
 <p>${ele.querySelector('title').textContent.replace(/(#\d*$)/,'')}</p>
@@ -451,7 +468,7 @@ async function livechart() {
 
 async function animefreak() {
     let data = await fetchJSON(new Request('https://www.animefreak.tv/search/topSearch?q='+tittle))
-    let txt = data.data.slice(0,10).map(ele => `
+    let txt = data.data.map(ele => `
 <a href="https://www.animefreak.tv/watch/${ele.seo_name}">
 <img src = "${ele.has_image ? 'https://www.animefreak.tv/meta/anime/' + ele.anime_id + '/' + ele.seo_name + '.jpg' : 'https://www.animefreak.tv/img/cover.jpg'}">
 <p>${ele.name}</p>
@@ -461,7 +478,7 @@ async function animefreak() {
 
 async function animefever() {
     let data = await fetchJSON(new Request('https://www.animefever.tv/api/anime/shows?search='+tittle.replaceAll(/’\S/g,'')))
-    let txt = data.data.slice(0,10).map(ele => `
+    let txt = data.data.map(ele => `
 <a href="https://www.animefever.tv/series/${ele.id}">
 <img src = "${ele.poster ? ele.poster.path : 'https://www.animefever.tv/themes/app/assets/dist/client/img/no-cover.3917711.png'}">
 <p>${ele.name}</p>
@@ -471,7 +488,7 @@ async function animefever() {
 
 async function animehub() {
     let data = await fetchDOM(new Request('https://animehub.ac/search/'+(tittle.replaceAll(' ','+'))))
-    let txt = [...data.querySelectorAll('#main-content ul.ulclear > li')].slice(0,10).map(ele => `
+    let txt = [...data.querySelectorAll('#main-content ul.ulclear > li')].map(ele => `
 <a href="${ele.querySelector('a').href}">
 <img src = "${ele.querySelector('source').src}">
 <p>${ele.querySelector('.item-detail').textContent.trim()}</p>
@@ -481,7 +498,7 @@ async function animehub() {
 
 async function animevibe() {
     let data = await fetchDOM(new Request('https://animevibe.wtf/?s='+tittle))
-    let txt = [...data.querySelectorAll('div.col-md-12')].slice(0,10).map(ele => `
+    let txt = [...data.querySelectorAll('div.col-md-12')].map(ele => `
 <a href="${ele.querySelector('a').href}">
 <img src = "${ele.querySelector('[style]').style.backgroundImage.match(/\bhttps?:\/\/\S+/gi)[0]}">
 <p>${ele.querySelector('a').textContent.trim()}</p>
@@ -499,8 +516,20 @@ async function anidb() {
         },
         responseType: 'json',
     }
+    let reqq = {
+        url:'',
+        method: 'GET',
+        headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+            'x-referer': 'https://anidb.net',
+        },
+        responseType: 'blob',
+    }
     let res = await GM_xml(req)
-    let txt = res.filter((thing, index, self) =>index === self.findIndex((t) => (Number(t.id) === Number(thing.id)))).map(ele => setdata(ele.link, ele.picurl.match(/src="([^"]*)"/)[1], ele.name))
+    let txt = await Promise.all(res.filter((thing, index, self) =>index === self.findIndex((t) => (Number(t.id) === Number(thing.id)))).map(async (ele) =>{
+        reqq.url = ele.picurl.match(/src="([^"]*)"/)[1]
+        return setdata(ele.link, URL.createObjectURL(await GM_xml(reqq)), ele.name)
+    }))
     button (appvall('https://cdn-eu.anidb.net/css/icons/touch/favicon-32x32.png?v=6APwgP3EOy', txt,hcfg.get('anidb')),vcfg.get('anidb'),hcfg.get('anidb'))
 }
 
@@ -539,6 +568,17 @@ async function gogoanime() {
     button (appvall('https://cdn.gogocdn.net/files/gogo/img/favicon.ico', txt,hcfg.get('gogoanime')),vcfg.get('gogoanime'),hcfg.get('gogoanime'))
 }
 
+async function crunchyroll() {
+    let data = await fetchDOM(new Request('https://www.crunchyroll.com/ajax/?req=RpcApiSearch_GetSearchCandidates'))
+    let son = JSON.parse(data.textContent.match(/\/\*-secure-([^\*]*)\*\//)[1].trim())
+    let txt = son.data.filter(ele => ele.name.includes(tittle)).map(ele => `
+<a href="https://www.crunchyroll.com${ele.link}">
+<img src = "${ele.img.replace('small','full')}">
+<p>${ele.name}</p>
+</a>`)
+    button (appvall('https://www.crunchyroll.com/favicons/favicon-16x16.png', txt,hcfg.get('crunchyroll')),vcfg.get('crunchyroll'),hcfg.get('crunchyroll'))
+}
+
 // functions
 
 window.onclick = function(event) {
@@ -554,6 +594,11 @@ window.onclick = function(event) {
 }
 
 function appvall(fav,txt,hth){
+    num++
+    return `<div class="dropdown1 h${hth}"><img id="dropbtnn${num}" class="dropbtn1" src = "${fav}"></img><div id="myDropdown${num}" class="dropdown1-content">${txt.slice(0,10).join(' ')}</div></div>`
+}
+
+function appvall2(fav,txt,hth){
     num++
     return `<div class="dropdown1 h${hth}"><img id="dropbtnn${num}" class="dropbtn1" src = "${fav}"></img><div id="myDropdown${num}" class="dropdown1-content">${txt.join(' ')}</div></div>`
 }
@@ -660,10 +705,6 @@ async function GM_xml(req){
 function setdata( href, img, txt ) {
     return (`<a href="${href}"><img src = "${img}"><p>${txt}</p></a>`)
 }
-
-
-
-
 
 
 
