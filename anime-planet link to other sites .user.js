@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         anime/manga link to other sites
 // @namespace    https://github.com/Robonau/anime-manga-userscript
-// @version      1.5.1
+// @version      1.5.2
 // @description  add kitsu/mangaupdates/myanimelist etc buttons to pages
 // @author       robo
 // @include      https://kitsu.io/*
@@ -27,6 +27,7 @@
 // @history      1.4.3 add some sites
 // @history      1.5 add configurable priorities for vertical and horizontal
 // @history      1.5.1 dealt with negative priorities
+// @history      1.5.2 add some stuff
 // @connect      kitsu.io
 // @connect      mangaupdates.com
 // @connect      myanimelist.net
