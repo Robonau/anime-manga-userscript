@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         anime/manga link to other sites
 // @namespace    https://github.com/Robonau/anime-manga-userscript
-// @version      1.5.4
+// @version      1.5.5
 // @description  add kitsu/mangaupdates/myanimelist etc buttons to pages
 // @author       robo
 // @include      https://kitsu.io/*
@@ -29,6 +29,7 @@
 // @history      1.5.1 dealt with negative priorities
 // @history      1.5.2 add some stuff
 // @history      1.5.4 add a bunch of sites
+// @history      1.5.5 deal with weird pic sizes
 // @connect      *
 // ==/UserScript==
 
@@ -275,6 +276,10 @@ background-color: rgb(27, 29, 30);
 
 .dropdown1 a img {
 max-height: 100px;
+max-width: 100px;
+object-fit: scale-down;
+object-position: top left;
+padding-bottom: 5px;
 }
 
 .dropdown1 a p {
