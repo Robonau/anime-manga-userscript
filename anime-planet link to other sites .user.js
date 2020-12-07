@@ -23,6 +23,7 @@
 // @history      1.4 add more sites
 // @history      1.4.1 refresh on save config
 // @history      1.4.2 split nelo/kalot
+// @history      1.4.3 add some sites
 // ==/UserScript==
 
 /* globals jQuery, $, waitForKeyElements, gmfetch, MonkeyConfig*/
@@ -111,6 +112,18 @@ let cfg = new MonkeyConfig({
             type: 'checkbox',
             default: true
         },
+        mangafast: {
+            type: 'checkbox',
+            default: true
+        },
+        animedao: {
+            type: 'checkbox',
+            default: true
+        },
+        gogoanime: {
+            type: 'checkbox',
+            default: true
+        },
     },
     onSave: setOptions
 });
@@ -129,7 +142,6 @@ cfg.get('mangakomi') ? madaralist.push({url:'https://mangakomi.com/',fav:'https:
 cfg.get('mangatx') ? madaralist.push({url:'https://mangatx.com/',fav:'https://mangatx.com/wp-content/uploads/2019/10/MANGATX.png'}) : null;
 cfg.get('zinmanga') ? madaralist.push({url:'https://zinmanga.com/',fav:'https://zinmanga.com/wp-content/uploads/2020/02/cropped-IMG_20200222_225535-32x32.jpg'}) : null;
 cfg.get('wuxiaworld') ? madaralist.push({url:'https://wuxiaworld.site/',fav:'https://wuxiaworld.b-cdn.net/wp-content/uploads/2019/04/favicon-1.ico'}) : null;
-
 
 let nelo_Kakalott = []
 cfg.get('manganelo') ? nelo_Kakalott.push({url:'https://manganelo.com/getstorysearchjson',fav:'https://manganelo.com/favicon.png'}) : null;
@@ -237,11 +249,14 @@ function doAllAnime(){
     cfg.get('animehub') ? animehub() : null
     cfg.get('animevibe') ? animevibe() : null;
     cfg.get('animepahe') ? animepahe() : null
+    cfg.get('animedao') ? animedao() : null
+    cfg.get('gogoanime') ? gogoanime() : null
 }
 
 function doAllManga(){
 	madaralist.forEach(element => madara(element.url,element.fav))
 	nelo_Kakalott.forEach(element => nelo_Kakalot(element.url,element.fav))
+    cfg.get('mangafast') ? mangafast() : null
 }
 
 //set css styles
@@ -417,6 +432,16 @@ async function nelo_Kakalot(url,fav) {
     button (appvall(fav, txt),1)
 }
 
+async function mangafast() {
+    let data = await fetchDOM(new Request('https://mangafast.net/?s='+tittle))
+    let txt = [...data.querySelectorAll('.ls5 a:not(.lats)')].map(ele => `
+                <a href="${ele.href}">
+                    <img src = "${ele.querySelector('source').dataset.src}">
+                    <p>${ele.textContent.trim()}</p>
+                </a>`)
+    button (appvall('https://mangafast.net/icon.ico', txt),1)
+}
+
 //anime only:
 
 async function nyaa() {
@@ -506,6 +531,27 @@ async function animepahe() {
     let res = await GM_xml(req)
     let txt = res.data.map(ele => setdata('https://animepahe.com/anime/'+ele.session, ele.poster, ele.title))
     button (appvall('https://animepahe.com/pikacon-32x32.png', txt),1)
+}
+
+async function animedao() {
+    let data = await fetchDOM(new Request('https://animedao.to/search/?key='+tittle))
+    let txt = [...data.querySelectorAll('body > div.container.content > div:nth-child(2) > div')].map(ele => `
+                <a href="${ele.href}">
+                    <img src = "${'https://animedao.to/'+ele.querySelector('source').dataset.src}">
+                    <p>${ele.querySelector('h4').textContent}</p>
+                </a>`)
+    button (appvall('https://animedao.to/favicon.ico', txt),1)
+}
+
+async function gogoanime() {
+    let data = await fetchJSON(new Request('https://ajax.gogocdn.net/site/loadAjaxSearch?id=-1&link_web=https%3A%2F%2Fgogoanime.so%2F&keyword='+tittle))
+    let dom = createDOM(data.content)
+    let txt = [...dom.querySelectorAll('a')].map(ele => `
+                <a href="${ele.href}">
+                    <img src = "${ele.querySelector('[style]').style.backgroundImage.match(/url\("([^"]*)"\)/)[1]}">
+                    <p>${ele.textContent}</p>
+                </a>`)
+    button (appvall('https://cdn.gogocdn.net/files/gogo/img/favicon.ico', txt),1)
 }
 
 //necessary functions
