@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name         anime/manga link to other sites
-// @version      1.3
+// @version      1.4
 // @description  add kitsu/mangaupdates/myanimelist etc buttons to pages
 // @author       robo
 // @include      https://kitsu.io/*
@@ -20,6 +20,7 @@
 // @require      https://unpkg.com/gmxhr-fetch
 // @require      https://raw.githubusercontent.com/odyniec/MonkeyConfig/master/monkeyconfig.js
 // @history      1.3 add config to enable/disable 
+// @history      1.4 add more sites
 // ==/UserScript==
 
 /* globals jQuery, $, waitForKeyElements, gmfetch, MonkeyConfig*/
@@ -45,10 +46,6 @@ let cfg = new MonkeyConfig({
             default: true
         },
         mangaupdates: {
-            type: 'checkbox',
-            default: true
-        },
-        madara: {
             type: 'checkbox',
             default: true
         },
@@ -88,6 +85,26 @@ let cfg = new MonkeyConfig({
             type: 'checkbox',
             default: true
         },
+        isekaiscan: {
+            type: 'checkbox',
+            default: true
+        },
+        mangakomi: {
+            type: 'checkbox',
+            default: true
+        },
+        mangatx: {
+            type: 'checkbox',
+            default: true
+        },
+        zinmanga: {
+            type: 'checkbox',
+            default: true
+        },
+        wuxiaworld: {
+            type: 'checkbox',
+            default: true
+        },
     },
 });
 
@@ -95,10 +112,14 @@ let cfg = new MonkeyConfig({
 let num = 0;
 let inafter = '';
 let tittle = '';
-let madaralist = [
-    {url:'https://isekaiscan.com/',fav:'https://isekaiscan.com/wp-content/uploads/2019/01/50306s4.png'},
-    {url:'https://mangakomi.com/',fav:'https://mangakomi.com/wp-content/uploads/2019/12/cropped-1ZzMnJA2_400x400.jpg'}
-];
+let madaralist = []
+cfg.get('isekaiscan') ? madaralist.push({url:'https://isekaiscan.com/',fav:'https://isekaiscan.com/wp-content/uploads/2019/01/50306s4.png'}) : null;
+cfg.get('mangakomi') ? madaralist.push({url:'https://mangakomi.com/',fav:'https://mangakomi.com/wp-content/uploads/2019/12/cropped-1ZzMnJA2_400x400.jpg'}) : null;
+cfg.get('mangatx') ? madaralist.push({url:'https://mangatx.com/',fav:'https://mangatx.com/wp-content/uploads/2019/10/MANGATX.png'}) : null;
+cfg.get('zinmanga') ? madaralist.push({url:'https://zinmanga.com/',fav:'https://zinmanga.com/wp-content/uploads/2020/02/cropped-IMG_20200222_225535-32x32.jpg'}) : null;
+cfg.get('wuxiaworld') ? madaralist.push({url:'https://wuxiaworld.site/',fav:'https://wuxiaworld.b-cdn.net/wp-content/uploads/2019/04/favicon-1.ico'}) : null;
+
+
 let nelo_Kakalott = [
     {url:'https://manganelo.com/getstorysearchjson',fav:'https://manganelo.com/favicon.png'},
     {url:'https://mangakakalot.com/home_json_search',fav:'https://mangakakalot.com/favicon.ico'}
@@ -199,8 +220,8 @@ else if (window.location.href.includes("https://anidb.net/anime/")){
     cfg.get('anilist') ? anilist('anime') : null;
 }
 function doAllAnime(){
-	cfg.get('animefreak') ? animefreak() : null
-	cfg.get('animefever') ? animefever() : null
+    cfg.get('animefreak') ? animefreak() : null
+    cfg.get('animefever') ? animefever() : null
     cfg.get('livechart') ? livechart() : null
     cfg.get('nyaa') ? nyaa() : null
     cfg.get('animehub') ? animehub() : null
@@ -209,7 +230,7 @@ function doAllAnime(){
 }
 
 function doAllManga(){
-	cfg.get('madara') ? madaralist.forEach(element => madara(element.url,element.fav)) : null
+	madaralist.forEach(element => madara(element.url,element.fav))
 	cfg.get('nelo_Kakalot') ? nelo_Kakalott.forEach(element => nelo_Kakalot(element.url,element.fav)) : null
 }
 
@@ -365,7 +386,7 @@ async function madara(url,fav) {
     let data = await fetchDOM(new Request(new URL('/?post_type=wp-manga&s='+tittle, url).href))
     let txt = await Promise.all([...data.querySelectorAll("div.c-tabs-item__content")].map(async (ele) =>{
         let element = ele.querySelector('source')
-        req.url = new URL(element.dataset.src || element.srcset || element.src)
+        req.url = new URL(element.dataset.src || element.src || element.srcset)
         let img = URL.createObjectURL(await GM_xml(req))
         return '<a href="'+ele.querySelector('a').href+'"><img src = "'+img+'"><p>'+ele.querySelector('.post-title').textContent.trim()+'</p></a>'
     }))
