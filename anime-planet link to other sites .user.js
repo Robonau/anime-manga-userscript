@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name         anime/manga link to other sites
-// @version      1.4
+// @version      1.4.1
 // @description  add kitsu/mangaupdates/myanimelist etc buttons to pages
 // @author       robo
 // @include      https://kitsu.io/*
@@ -19,8 +19,9 @@
 // @require      https://code.jquery.com/jquery-3.5.1.js
 // @require      https://unpkg.com/gmxhr-fetch
 // @require      https://raw.githubusercontent.com/odyniec/MonkeyConfig/master/monkeyconfig.js
-// @history      1.3 add config to enable/disable 
+// @history      1.3 add config to enable/disable
 // @history      1.4 add more sites
+// @history      1.4.1 refresh on save config
 // ==/UserScript==
 
 /* globals jQuery, $, waitForKeyElements, gmfetch, MonkeyConfig*/
@@ -106,8 +107,12 @@ let cfg = new MonkeyConfig({
             default: true
         },
     },
+    onSave: setOptions
 });
 
+function setOptions() {
+    location.reload();
+}
 
 let num = 0;
 let inafter = '';
