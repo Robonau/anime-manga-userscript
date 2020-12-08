@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         anime/manga link to other sites
 // @namespace    https://github.com/Robonau/anime-manga-userscript
-// @version      1.5.7
+// @version      1.6
 // @description  add kitsu/mangaupdates/myanimelist etc buttons to pages
 // @author       robo
 // @include      https://kitsu.io/*
@@ -32,45 +32,49 @@
 // @history      1.5.5 deal with weird pic sizes
 // @history      1.5.6 netflix
 // @history      1.5.7 masterani & fix anime planet pages with banners
+// @history      1.6 made it easyer to add stuff
 // @connect      *
 // ==/UserScript==
 
 /* globals jQuery, $, waitForKeyElements, gmfetch, MonkeyConfig*/
 
 let sites = [
-    {name:'kitsu',Vdef:0,Hdef:0},
-    {name:'myanimelist',Vdef:0,Hdef:0},
-    {name:'anilist',Vdef:0,Hdef:0},
-    {name:'animeplanet',Vdef:0,Hdef:0},
-    {name:'mangaupdates',Vdef:0,Hdef:0},
-    {name:'isekaiscan',Vdef:1,Hdef:0},
-    {name:'mangakomi',Vdef:1,Hdef:0},
-    {name:'mangatx',Vdef:1,Hdef:0},
-    {name:'zinmanga',Vdef:1,Hdef:0},
-    {name:'wuxiaworld',Vdef:1,Hdef:0},
-    {name:'manganelo',Vdef:1,Hdef:0},
-    {name:'mangakakalot',Vdef:1,Hdef:0},
-    {name:'mangafast',Vdef:1,Hdef:0},
-    {name:'nyaa',Vdef:1,Hdef:0},
-    {name:'livechart',Vdef:2,Hdef:0},
-    {name:'animefreak',Vdef:1,Hdef:0},
-    {name:'animefever',Vdef:1,Hdef:0},
-    {name:'animehub',Vdef:1,Hdef:0},
-    {name:'animevibe',Vdef:1,Hdef:0},
-    {name:'anidb',Vdef:0,Hdef:0},
-    {name:'animepahe',Vdef:1,Hdef:0},
-    {name:'animedao',Vdef:1,Hdef:0},
-    {name:'gogoanime',Vdef:1,Hdef:0},
-    {name:'mangareader',Vdef:1,Hdef:0},
-    {name:'bato',Vdef:1,Hdef:0},
-    {name:'fanfox',Vdef:1,Hdef:0},
-    {name:'crunchyroll',Vdef:1,Hdef:0},
-    {name:'funimation',Vdef:1,Hdef:0},
-    {name:'9anime',Vdef:1,Hdef:0},
-    {name:'netflix',Vdef:1,Hdef:0},
-    {name:'masterani',Vdef:1,Hdef:0},
+    {type:'am',name:'kitsu',Vdef:0,Hdef:0},
+    {type:'am',name:'myanimelist',Vdef:0,Hdef:0},
+    {type:'am',name:'anilist',Vdef:0,Hdef:0},
+    {type:'am',name:'animeplanet',Vdef:0,Hdef:0},
+    {type:'manga',name:'mangaupdates',Vdef:0,Hdef:0},
+    {type:'',name:'isekaiscan',Vdef:1,Hdef:0},
+    {type:'',name:'mangakomi',Vdef:1,Hdef:0},
+    {type:'',name:'mangatx',Vdef:1,Hdef:0},
+    {type:'',name:'zinmanga',Vdef:1,Hdef:0},
+    {type:'',name:'wuxiaworld',Vdef:1,Hdef:0},
+    {type:'',name:'manganelo',Vdef:1,Hdef:0},
+    {type:'',name:'mangakakalot',Vdef:1,Hdef:0},
+    {type:'manga',name:'mangafast',Vdef:1,Hdef:0},
+    {type:'anime',name:'nyaa',Vdef:1,Hdef:0},
+    {type:'anime',name:'livechart',Vdef:2,Hdef:0},
+    {type:'anime',name:'animefreak',Vdef:1,Hdef:0},
+    {type:'anime',name:'animefever',Vdef:1,Hdef:0},
+    {type:'anime',name:'animehub',Vdef:1,Hdef:0},
+    {type:'anime',name:'animevibe',Vdef:1,Hdef:0},
+    {type:'am',name:'anidb',Vdef:0,Hdef:0},
+    {type:'anime',name:'animepahe',Vdef:1,Hdef:0},
+    {type:'anime',name:'animedao',Vdef:1,Hdef:0},
+    {type:'anime',name:'gogoanime',Vdef:1,Hdef:0},
+    {type:'manga',name:'mangareader',Vdef:1,Hdef:0},
+    {type:'manga',name:'bato',Vdef:1,Hdef:0},
+    {type:'manga',name:'fanfox',Vdef:1,Hdef:0},
+    {type:'anime',name:'crunchyroll',Vdef:1,Hdef:0},
+    {type:'anime',name:'funimation',Vdef:1,Hdef:0},
+    {type:'anime',name:'nineAnime',Vdef:1,Hdef:0},
+    {type:'anime',name:'netflix',Vdef:1,Hdef:0},
+    {type:'anime',name:'masterani',Vdef:1,Hdef:0},
+    {type:'anime',name:'animefrenzy',Vdef:1,Hdef:0},
 
 ]
+
+
 
 let endis = {}
 let Vpriority= {}
@@ -112,15 +116,348 @@ let inafter = '';
 let tittle = '';
 
 let madaralist = []
-cfg.get('isekaiscan') ? madaralist.push({url:'https://isekaiscan.com/', fav:'https://isekaiscan.com/wp-content/uploads/2019/01/50306s4.png', vdef:vcfg.get('isekaiscan'), Hdef:hcfg.get('isekaiscan')}) : null;
-cfg.get('mangakomi') ? madaralist.push({url:'https://mangakomi.com/', fav:'https://mangakomi.com/wp-content/uploads/2019/12/cropped-1ZzMnJA2_400x400.jpg', vdef:vcfg.get('mangakomi'), Hdef:hcfg.get('mangakomi')}) : null;
-cfg.get('mangatx') ? madaralist.push({url:'https://mangatx.com/', fav:'https://mangatx.com/wp-content/uploads/2019/10/MANGATX.png', vdef:vcfg.get('mangatx'), Hdef:hcfg.get('mangatx')}) : null;
-cfg.get('zinmanga') ? madaralist.push({url:'https://zinmanga.com/', fav:'https://zinmanga.com/wp-content/uploads/2020/02/cropped-IMG_20200222_225535-32x32.jpg', vdef:vcfg.get('zinmanga'), Hdef:hcfg.get('zinmanga')}) : null;
-cfg.get('wuxiaworld') ? madaralist.push({url:'https://wuxiaworld.site/', fav:'https://wuxiaworld.b-cdn.net/wp-content/uploads/2019/04/favicon-1.ico', vdef:vcfg.get('wuxiaworld'), Hdef:hcfg.get('wuxiaworld')}) : null;
+cfg.get('isekaiscan') ? madaralist.push({url:'https://isekaiscan.com/', fav:'https://isekaiscan.com/wp-content/uploads/2019/01/50306s4.png', name:('isekaiscan')}) : null;
+cfg.get('mangakomi') ? madaralist.push({url:'https://mangakomi.com/', fav:'https://mangakomi.com/wp-content/uploads/2019/12/cropped-1ZzMnJA2_400x400.jpg', name:('mangakomi')}) : null;
+cfg.get('mangatx') ? madaralist.push({url:'https://mangatx.com/', fav:'https://mangatx.com/wp-content/uploads/2019/10/MANGATX.png', name:'mangatx'}) : null;
+cfg.get('zinmanga') ? madaralist.push({url:'https://zinmanga.com/', fav:'https://zinmanga.com/wp-content/uploads/2020/02/cropped-IMG_20200222_225535-32x32.jpg', name:('zinmanga')}) : null;
+cfg.get('wuxiaworld') ? madaralist.push({url:'https://wuxiaworld.site/', fav:'https://wuxiaworld.b-cdn.net/wp-content/uploads/2019/04/favicon-1.ico', name:'wuxiaworld'}) : null;
 
 let nelo_Kakalott = []
-cfg.get('manganelo') ? nelo_Kakalott.push({url:'https://manganelo.com/getstorysearchjson',fav:'https://manganelo.com/favicon.png', vdef:vcfg.get('manganelo'), Hdef:hcfg.get('manganelo')}) : null;
-cfg.get('mangakakalot') ? nelo_Kakalott.push({url:'https://mangakakalot.com/home_json_search',fav:'https://mangakakalot.com/favicon.ico', vdef:vcfg.get('mangakakalot'), Hdef:hcfg.get('mangakakalot')}) : null;
+cfg.get('manganelo') ? nelo_Kakalott.push({url:'https://manganelo.com/getstorysearchjson',fav:'https://manganelo.com/favicon.png', name:('manganelo')}) : null;
+cfg.get('mangakakalot') ? nelo_Kakalott.push({url:'https://mangakakalot.com/home_json_search',fav:'https://mangakakalot.com/favicon.ico', name:('mangakakalot')}) : null;
+
+//the code that actually does stuff
+
+let at = {
+
+    //manga & anime:
+    kitsu: async (am) => {
+        let data = await fetchJSON(new Request('https://kitsu.io/api/edge/'+am+'?filter[text]='+tittle))
+        let txt = data.data.map(ele => setdata('https://kitsu.io/'+am+'/'+ele.attributes.slug, ele.attributes.posterImage.tiny, ele.attributes.canonicalTitle))
+        button (appvall('https://kitsu.io/favicon.ico', txt,hcfg.get('kitsu')),vcfg.get('kitsu'),hcfg.get('kitsu'))
+    },
+
+    myanimelist: async (am) => {
+        let data = await fetchJSON(new Request('https://myanimelist.net/search/prefix.json?type='+am+'&keyword='+tittle))
+        let txt = data.categories[0].items.map(ele => setdata('https://myanimelist.net/'+am+'/'+ele.id, ele.image_url, ele.name))
+        button (appvall('https://myanimelist.net/favicon.ico', txt,hcfg.get('myanimelist')),vcfg.get('myanimelist'),hcfg.get('myanimelist'));
+    },
+
+    anilist: async (am) => {
+        let query = `
+query($search:String,$isAdult:Boolean){
+anime:Page(perPage:8){
+results:media(type:${am.toUpperCase()},isAdult:$isAdult,search:$search){
+id title{
+userPreferred
+}
+coverImage{
+medium
+}
+}
+}
+}`
+        let req = {
+            url:'https://graphql.anilist.co',
+            method: 'POST',
+            headers:{
+                'Content-Type': 'application/json',
+                'Accept': 'application/json',
+            },
+            data:JSON.stringify({
+                query: query,
+                variables: {search: tittle}
+            }),
+            responseType: 'json',
+        }
+        let res = await GM_xml(req)
+        let txt = res.data.anime.results.map(ele => setdata('https://anilist.co/'+am+'/'+ele.id, ele.coverImage.medium, ele.title.userPreferred))
+        button (appvall('https://anilist.co/img/icons/favicon-16x16.png', txt,hcfg.get('anilist')),vcfg.get('anilist'),hcfg.get('anilist'))
+    },
+
+    animeplanet: async (am) => {
+        let data = await fetchDOM(new Request('https://www.anime-planet.com/'+am+'/all?name='+tittle))
+        let txt = []
+        if(data.querySelectorAll('#entry').length){
+            txt = [`<a href="${data.querySelector('meta[property="og:url"]').content}">
+<img src = "${new URL(data.querySelector('#entry div.mainEntry > source').getAttribute('src'), 'https://www.anime-planet.com/').href}">
+<p>${data.querySelector('#siteContainer > h1').textContent.trim()}</p>
+</a>`]
+        }
+        else{
+            txt = [...data.querySelectorAll('.card a')].map(ele => `
+<a href="${new URL(ele.pathname, 'https://www.anime-planet.com/').href}">
+<img src = "${new URL(ele.querySelector('source').dataset.src, 'https://www.anime-planet.com/').href}">
+<p>${ele.querySelector('.cardName').textContent.trim()}</p>
+</a>`)
+        }
+        button (appvall('https://www.anime-planet.com/favicon-32x32.png?v=WGowMEAKpM', txt,hcfg.get('animeplanet')),vcfg.get('animeplanet'),hcfg.get('animeplanet'))
+    },
+
+    //manga only:
+
+    mangaupdates: async () => {
+        let data = await fetchJSON(new Request('https://www.mangaupdates.com/series.html?output=json&search='+tittle))
+        let txt = data.results.items.map(ele => '<a href="https://www.mangaupdates.com/series.html?id='+ele.id+'"><p>'+ele.title+'</p></a>')
+        button (appvall('https://www.mangaupdates.com/favicon.ico', txt,hcfg.get('mangaupdates')),vcfg.get('mangaupdates'),hcfg.get('mangaupdates'))
+    },
+
+    madara: async (elem) => {
+        let req = {
+            url:elem.fav,
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+                'x-referer': new URL(elem.fav).origin,
+            },
+            responseType: 'blob',
+        }
+        let fav = URL.createObjectURL(await GM_xml(req))
+        let data = await fetchDOM(new Request(new URL('/?post_type=wp-manga&s='+tittle, elem.url).href))
+        let txt = await Promise.all([...data.querySelectorAll("div.c-tabs-item__content")].map(async (ele) =>{
+            let element = ele.querySelector('source')
+            req.url = new URL(element.dataset.src || element.src || element.srcset)
+            let img = URL.createObjectURL(await GM_xml(req))
+            return '<a href="'+ele.querySelector('a').href+'"><img src = "'+img+'"><p>'+ele.querySelector('.post-title').textContent.trim()+'</p></a>'
+        }))
+        button (appvall(fav, txt,hcfg.get(elem.name)),vcfg.get(elem.name),hcfg.get(elem.name))
+    },
+
+    nelo_Kakalot: async (elem) => {
+        let dattt = new FormData();
+        dattt.append('searchword',tittle.replace(' ','_'));
+        let req = {
+            url: elem.url,
+            method: 'POST',
+            data: dattt,
+            responseType: 'json',
+        }
+        let res = await GM_xml(req)
+        let txt = res.map(ele => setdata(ele.story_link ? ele.story_link : 'https://manganelo.com/manga/'+ele.id_encode, ele.image, createDOM(ele.name).textContent))
+        button (appvall(elem.fav, txt,hcfg.get(elem.name)),vcfg.get(elem.name),hcfg.get(elem.name))
+    },
+
+    mangafast: async () => {
+        let data = await fetchDOM(new Request('https://mangafast.net/?s='+tittle))
+        let txt = [...data.querySelectorAll('.ls5 a:not(.lats)')].map(ele => `
+<a href="${ele.href}">
+<img src = "${ele.querySelector('source').dataset.src}">
+<p>${ele.textContent.trim()}</p>
+</a>`)
+        button (appvall('https://mangafast.net/icon.ico', txt,hcfg.get('mangafast')),vcfg.get('mangafast'),hcfg.get('mangafast'))
+    },
+
+    mangareader: async () => {
+        let data = await fetchDOM(new Request('https://www.mangareader.net/search/?nsearch='+tittle))
+        let txt = [...data.querySelectorAll('.d54')].map(ele => `
+<a href="https://www.mangareader.net/${ele.querySelector('a').pathname}">
+<img src = "${ele.querySelector('.d56').dataset.src}">
+<p>${ele.querySelector('a').text.trim()}</p>
+</a>`)
+        button (appvall2('https://s11.mangareader.net/images/icons/mr-192.png', txt,hcfg.get('mangareader')),vcfg.get('mangareader'),hcfg.get('mangareader'))
+    },
+
+    bato: async () => {
+        let data = await fetchDOM(new Request('https://bato.to/search?word='+tittle))
+        let txt = [...data.querySelectorAll('#series-list > div')].map(ele => `
+<a href="https://bato.to${ele.querySelector('a').pathname}">
+<img src = "${ele.querySelector('source').src}">
+<p>${ele.querySelector('a.item-title').text.trim()}</p>
+</a>`)
+        button (appvall('https://static.animemark.com/img/batoto/favicon.ico?v0', txt,hcfg.get('bato')),vcfg.get('bato'),hcfg.get('bato'))
+    },
+
+    fanfox: async () => {
+        let data = await fetchDOM(new Request('http://fanfox.net/search?title='+tittle))
+        let txt = [...data.querySelectorAll('li > a')].map(ele => `
+<a href="https://fanfox.net${ele.pathname}">
+<img src = "${ele.querySelector('source').src}">
+<p>${ele.title.trim()}</p>
+</a>`)
+        button (appvall('http://fanfox.net/favicon.ico', txt,hcfg.get('fanfox')),vcfg.get('fanfox'),hcfg.get('fanfox'))
+    },
+
+    //anime only:
+
+    nyaa: async () => {
+        let data = await fetchDOM(new Request('https://nyaa.si/?f=0&c=0_0&s=seeders&o=desc&q='+tittle))
+        let txt = [...data.querySelectorAll('tbody tr')].map(ele => `
+<a href="${new URL(ele.querySelector('[colspan] a').pathname, 'https://nyaa.si/').href}">
+<p>${ele.querySelector('[colspan] a:last-child').textContent.trim().replaceAll('_', ' ')}</p>
+<p>${ele.querySelector('td:nth-child(6)').textContent}seeds</p>
+</a>`)
+        button (appvall2('https://nyaa.si/static/favicon.png', txt,hcfg.get('nyaa')),vcfg.get('nyaa'),hcfg.get('nyaa'))
+    },
+
+    livechart: async () => {
+        let data = await fetchDOM(new Request('https://www.livechart.me/feeds/episodes'))
+        let txt = [...data.querySelectorAll('item')].map(ele => `
+<a href="${ele.querySelector('link').nextSibling.data.trim()}">
+<img src = "${ele.querySelector('enclosure').getAttribute('url')}">
+<p>${ele.querySelector('title').textContent.replace(/(#\d*$)/,'')}</p>
+</a>`)
+        button (appvall('https://www.livechart.me/apple-touch-icon-precomposed.png', txt,hcfg.get('livechart')),vcfg.get('livechart'),hcfg.get('livechart'))
+    },
+
+    animefreak: async () => {
+        let data = await fetchJSON(new Request('https://www.animefreak.tv/search/topSearch?q='+tittle))
+        let txt = data.data.map(ele => `
+<a href="https://www.animefreak.tv/watch/${ele.seo_name}">
+<img src = "${ele.has_image ? 'https://www.animefreak.tv/meta/anime/' + ele.anime_id + '/' + ele.seo_name + '.jpg' : 'https://www.animefreak.tv/img/cover.jpg'}">
+<p>${ele.name}</p>
+</a>`)
+        button (appvall('https://www.animefreak.tv/favicon.ico', txt,hcfg.get('animefreak')),vcfg.get('animefreak'),hcfg.get('animefreak'))
+    },
+
+    animefever: async () => {
+        let data = await fetchJSON(new Request('https://www.animefever.tv/api/anime/shows?search='+tittle.replaceAll(/’\S/g,'')))
+        let txt = data.data.map(ele => `
+<a href="https://www.animefever.tv/series/${ele.id}">
+<img src = "${ele.poster ? ele.poster.path : 'https://www.animefever.tv/themes/app/assets/dist/client/img/no-cover.3917711.png'}">
+<p>${ele.name}</p>
+</a>`)
+        button (appvall('https://www.animefever.tv/favicon.ico', txt,hcfg.get('animefever')),vcfg.get('animefever'),hcfg.get('animefever'))
+    },
+
+    animehub: async () => {
+        let data = await fetchDOM(new Request('https://animehub.ac/search/'+(tittle.replaceAll(' ','+'))))
+        let txt = [...data.querySelectorAll('#main-content ul.ulclear > li')].map(ele => `
+<a href="${ele.querySelector('a').href}">
+<img src = "${ele.querySelector('source').src}">
+<p>${ele.querySelector('.item-detail').textContent.trim()}</p>
+</a>`)
+        button (appvall('https://static.animecdn.xyz/assets/animehub/images/favicon.png', txt,hcfg.get('animehub')),vcfg.get('animehub'),hcfg.get('animehub'))
+    },
+
+    animevibe: async () => {
+        try{
+            let data = await fetchDOM(new Request('https://animevibe.wtf/?s='+tittle))
+            let txt = [...data.querySelectorAll('div.col-md-12')].map(ele => `
+<a href="${ele.querySelector('a').href}">
+<img src = "${ele.querySelector('[style]').style.backgroundImage.match(/\bhttps?:\/\/\S+/gi)[0]}">
+<p>${ele.querySelector('a').textContent.trim()}</p>
+</a>`)
+            button (appvall('https://animevibe.wtf/wp-content/themes/animevibe/assets/img/logo/192x192.png', txt,hcfg.get('animevibe')),vcfg.get('animevibe'),hcfg.get('animevibe'))
+        }catch(error){console.log('you need to load https://animevibe.wtf to deal with cloudflare')}
+    },
+
+    anidb: async () => {
+        let req = {
+            url:'https://anidb.net/perl-bin/animedb.pl?show=json&action=search&type=anime&query='+tittle,
+            method: 'GET',
+            headers:{
+                'Content-Type': 'application/json',
+                'x-lcontrol':'x-no-cache'
+            },
+            responseType: 'json',
+        }
+        let reqq = {
+            url:'',
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+                'x-referer': 'https://anidb.net',
+            },
+            responseType: 'blob',
+        }
+        let res = await GM_xml(req)
+        let txt = await Promise.all(res.filter((thing, index, self) =>index === self.findIndex((t) => (Number(t.id) === Number(thing.id)))).map(async (ele) =>{
+            reqq.url = ele.picurl.match(/src="([^"]*)"/)[1]
+            return setdata(ele.link, URL.createObjectURL(await GM_xml(reqq)), ele.name)
+        }))
+        button (appvall('https://cdn-eu.anidb.net/css/icons/touch/favicon-32x32.png?v=6APwgP3EOy', txt,hcfg.get('anidb')),vcfg.get('anidb'),hcfg.get('anidb'))
+    },
+
+    animepahe: async () => {
+        let req = {
+            url:'https://animepahe.com/api?m=search&l=8&q='+tittle,
+            method: 'GET',
+            headers:{
+                'Content-Type': 'application/json',
+            },
+            responseType: 'json',
+        }
+        let res = await GM_xml(req)
+        let txt = res.data.map(ele => setdata('https://animepahe.com/anime/'+ele.session, ele.poster, ele.title))
+        button (appvall('https://animepahe.com/pikacon-32x32.png', txt,hcfg.get('animepahe')),vcfg.get('animepahe'),hcfg.get('animepahe'))
+    },
+
+    animedao: async () => {
+        try{
+            let data = await fetchDOM(new Request('https://animedao.to/search/?key='+tittle))
+            let txt = [...data.querySelectorAll('body > div.container.content > div:nth-child(2) > div > a')].map(ele => `
+<a href="https://animedao.to${ele.pathname}">
+<img src = "https://animedao.to/${ele.querySelector('source').dataset.src}">
+<p>${ele.querySelector('h4').textContent}</p>
+</a>`)
+            button (appvall('https://animedao.to/favicon.ico', txt,hcfg.get('animedao')),vcfg.get('animedao'),hcfg.get('animedao'))
+        }catch(error){console.log('you need to load https://animedao.to to deal with cloudflare')}
+    },
+
+    gogoanime: async () => {
+        let data = await fetchJSON(new Request('https://ajax.gogocdn.net/site/loadAjaxSearch?id=-1&link_web=https%3A%2F%2Fgogoanime.so%2F&keyword='+tittle))
+        let dom = createDOM(data.content)
+        let txt = [...dom.querySelectorAll('a')].map(ele => `
+<a href="${ele.href}">
+<img src = "${ele.querySelector('[style]').style.backgroundImage.match(/url\("([^"]*)"\)/)[1]}">
+<p>${ele.textContent}</p>
+</a>`)
+        button (appvall('https://cdn.gogocdn.net/files/gogo/img/favicon.ico', txt,hcfg.get('gogoanime')),vcfg.get('gogoanime'),hcfg.get('gogoanime'))
+    },
+
+    crunchyroll: async () => {
+        let data = await fetchDOM(new Request('https://www.crunchyroll.com/ajax/?req=RpcApiSearch_GetSearchCandidates'))
+        let son = JSON.parse(data.textContent.match(/\/\*-secure-([^\*]*)\*\//)[1].trim())
+        let txt = son.data.filter(ele => ele.name.includes(tittle)).map(ele => `
+<a href="https://www.crunchyroll.com${ele.link}">
+<img src = "${ele.img.replace('small','full')}">
+<p>${ele.name}</p>
+</a>`)
+        button (appvall('https://www.crunchyroll.com/favicons/favicon-16x16.png', txt,hcfg.get('crunchyroll')),vcfg.get('crunchyroll'),hcfg.get('crunchyroll'))
+    },
+
+    funimation: async () => {
+        let data = await fetchDOM(new Request('https://www.funimation.com/pred-search/'+tittle))
+        let txt = [...data.querySelectorAll('source')].map(ele => `
+<a href="https://www.funimation.com${ele.parentElement.pathname}">
+<img src = "${ele.dataset.src}">
+<p>${ele.title.trim()}</p>
+</a>`)
+        button (appvall('https://static.funimation.com/static/img/favicon.ico?v=1607308407.2988396', txt,hcfg.get('funimation')),vcfg.get('funimation'),hcfg.get('funimation'))
+    },
+
+    nineAnime: async () => {
+        let data = await fetchJSON(new Request('https://www12.9anime.to/ajax/anime/search?keyword='+tittle))
+        let dom = createDOM(data.html)
+        let txt = [...dom.querySelectorAll('a source')].map(ele => `
+<a href="https://www.funimation.com${ele.parentElement.pathname}">
+<img src = "${ele.src}">
+<p>${ele.nextElementSibling.querySelector('div').textContent.trim()}</p>
+</a>`)
+        button (appvall('https://www12.9anime.to/assets/9anime/favicons/favicon.png?v1', txt,hcfg.get('nineAnime')),vcfg.get('nineAnime'),hcfg.get('nineAnime'))
+    },
+
+    netflix: async () => {
+        let data = await fetchDOM(new Request('https://www.netflix.com/search?q='+tittle))
+        let txt = [...data.querySelectorAll("div.ptrack-content > a.slider-refocus")].map(ele => setdata( 'https://www.funimation.com'+ele.pathname, ele.querySelector('source').src, ele.textContent.trim() ))
+        button (appvall('https://assets.nflxext.com/us/ffe/siteui/common/icons/nficon2016.ico', txt,hcfg.get('netflix')),vcfg.get('netflix'),hcfg.get('netflix'))
+    },
+
+    masterani: async () => {
+        let data = await fetchJSON('https://www.masterani.one//home/autocompleteajax?term='+tittle.replace(' ','+'))
+        let txt = data.map(ele => setdata( ele.url, ele.image, ele.title ))
+        button (appvall('https://www.masterani.one/uploads/system_logo/favicon_5f8da71b87527.png', txt,hcfg.get('masterani')),vcfg.get('masterani'),hcfg.get('masterani'))
+    },
+
+    animefrenzy: async () => {
+        let dat = await fetchDOM('https://animefrenzy.org/')
+        let scr = await fetchDOM('https://animefrenzy.org'+new URL(dat.querySelector("body > script:nth-child(5)").src).pathname)
+        let data = await fetchJSON('https://frenzy.yare.wtf/anime/auto-complete/'+tittle+'?token='+scr.textContent.match(/token:"([^"]*)",/)[1])
+        let txt = data.data.map(ele => setdata( 'https://animefrenzy.org/anime/'+ele.slug, 'https://frenzy.yare.wtf/'+ele.image, ele.name.trim() ))
+        button (appvall('https://animefrenzy.org/favicon.ico', txt,hcfg.get('animefrenzy')),vcfg.get('animefrenzy'),hcfg.get('animefrenzy'))
+    },
+
+}
 
 //decide if anime or manga page, also add style
 
@@ -129,17 +466,9 @@ if (window.location.href.includes("https://www.anime-planet.com")){
         inafter = $('#siteContainer > nav')[0].previousElementSibling
         tittle = $('#siteContainer  h1')[0].textContent.trim()
         if (window.location.href.includes("/manga/")){
-            cfg.get('kitsu') ? kitsu('manga') : null;
-            cfg.get('mangaupdates') ? mangaupdates() : null;
-            cfg.get('anilist') ? anilist('manga') : null;
-            cfg.get('myanimelist') ? myanimelist('manga') : null
             doAllManga();
         }else if(window.location.href.includes("/anime/")){
             doAllAnime();
-            cfg.get('kitsu') ? kitsu('anime') : null;
-            cfg.get('myanimelist') ? myanimelist('anime') : null
-            cfg.get('anilist') ? anilist('anime') : null;
-            cfg.get('anidb') ? anidb() : null;
         }
     }
 }
@@ -148,44 +477,24 @@ else if (window.location.href.includes("https://kitsu.io")){
         inafter = $('section.media--title')[0]
         tittle = $('section.media--title h3')[0].textContent.trim()
         if (window.location.href.includes("/manga/")){
-            cfg.get('mangaupdates') ? mangaupdates() : null;
-            cfg.get('anilist') ? anilist('manga') : null;
-            cfg.get('myanimelist') ? myanimelist('manga') : null
-            cfg.get('animeplanet') ? animeplanet('manga') : null
             doAllManga();
         }else if(window.location.href.includes("/anime/")){
             doAllAnime();
-            cfg.get('myanimelist') ? myanimelist('anime') : null
-            cfg.get('anilist') ? anilist('anime') : null;
-            cfg.get('animeplanet') ? animeplanet('anime') : null
-            cfg.get('anidb') ? anidb() : null;
         }
     }))
 }
 else if (window.location.href.includes("https://www.mangaupdates.com/series.html")){
     inafter = $('#main_content div.col-12.p-2')[0]
     tittle = $('span.releasestitle')[0].textContent.trim()
-    cfg.get('kitsu') ? kitsu('manga') : null;
-    cfg.get('anilist') ? anilist('manga') : null;
-    cfg.get('myanimelist') ? myanimelist('manga') : null
-    cfg.get('animeplanet') ? animeplanet('manga') : null
     doAllManga();
 }
 else if (window.location.href.includes("https://myanimelist.net/")){
     inafter = $('[itemprop="name"]')[0]
     tittle = $('[itemprop="name"]')[0].childNodes[0].textContent
     if (window.location.href.includes("/manga/")){
-        cfg.get('kitsu') ? kitsu('manga') : null;
-        cfg.get('mangaupdates') ? mangaupdates() : null;
-        cfg.get('anilist') ? anilist('manga') : null;
-        cfg.get('animeplanet') ? animeplanet('manga') : null
         doAllManga();
     }else if(window.location.href.includes("/anime/")){
         doAllAnime();
-        cfg.get('kitsu') ? kitsu('anime') : null;
-        cfg.get('anilist') ? anilist('anime') : null;
-        cfg.get('animeplanet') ? animeplanet('anime') : null
-        cfg.get('anidb') ? anidb() : null;
     }
 }
 else if (window.location.href.includes("https://anilist.co")){
@@ -193,17 +502,9 @@ else if (window.location.href.includes("https://anilist.co")){
         inafter = $('h1')[0]
         tittle = $('h1')[0].textContent.trim()
         if (window.location.href.includes("/manga/")){
-            cfg.get('kitsu') ? kitsu('manga') : null;
-            cfg.get('mangaupdates') ? mangaupdates() : null;
-            cfg.get('myanimelist') ? myanimelist('manga') : null
-            cfg.get('animeplanet') ? animeplanet('manga') : null
             doAllManga();
         }else if(window.location.href.includes("/anime/")){
             doAllAnime();
-            cfg.get('kitsu') ? kitsu('anime') : null;
-            cfg.get('myanimelist') ? myanimelist('anime') : null
-            cfg.get('animeplanet') ? animeplanet('anime') : null
-            cfg.get('anidb') ? anidb() : null;
         }
     }))
 }
@@ -211,37 +512,22 @@ else if (window.location.href.includes("https://anidb.net/anime/")){
     inafter = $('#layout-main > h1')[0]
     tittle = $('#tab_1_pane > div > table > tbody > tr > td > span')[0].textContent.trim()
     doAllAnime();
-    cfg.get('kitsu') ? kitsu('anime') : null;
-    cfg.get('myanimelist') ? myanimelist('anime') : null
-    cfg.get('animeplanet') ? animeplanet('anime') : null
-    cfg.get('anilist') ? anilist('anime') : null;
 }
 
 function doAllAnime(){
-    cfg.get('animefreak') ? animefreak() : null
-    cfg.get('animefever') ? animefever() : null
-    cfg.get('livechart') ? livechart() : null
-    cfg.get('nyaa') ? nyaa() : null
-    cfg.get('animehub') ? animehub() : null
-    cfg.get('animevibe') ? animevibe() : null;
-    cfg.get('animepahe') ? animepahe() : null
-    cfg.get('animedao') ? animedao() : null
-    cfg.get('gogoanime') ? gogoanime() : null
-    cfg.get('crunchyroll') ? crunchyroll() : null
-    cfg.get('funimation') ? funimation() : null
-    cfg.get('9anime') ? nineanime() : null
-    cfg.get('netflix') ? netflix() : null
-    cfg.get('masterani') ? masterani() : null
-
+    sites.filter(each => each.type==='anime').forEach(ele => cfg.get(ele.name) ? at[ele.name]() : null)
+    doAllboth('anime')
 }
 
 function doAllManga(){
-    madaralist.forEach(element => madara(element))
-    nelo_Kakalott.forEach(element => nelo_Kakalot(element))
-    cfg.get('mangafast') ? mangafast() : null
-    cfg.get('mangareader') ? mangareader() : null
-    cfg.get('bato') ? bato() : null
-    cfg.get('fanfox') ? fanfox() : null
+    madaralist.forEach(element => at.madara(element))
+    nelo_Kakalott.forEach(element => at.nelo_Kakalot(element))
+    sites.filter(each => each.type==='manga').forEach(ele => cfg.get(ele.name) ? at[ele.name]() : null)
+    doAllboth('manga')
+}
+
+function doAllboth(am){
+    sites.filter(each => each.type==='am').forEach(ele => cfg.get(ele.name) ? at[ele.name](am) : null)
 }
 
 //set css styles
@@ -312,322 +598,6 @@ flex: 0 0 100%;
 }
 
 `)}
-
-//manga & anime:
-
-async function kitsu(am) {
-    let data = await fetchJSON(new Request('https://kitsu.io/api/edge/'+am+'?filter[text]='+tittle))
-    let txt = data.data.map(ele => setdata('https://kitsu.io/'+am+'/'+ele.attributes.slug, ele.attributes.posterImage.tiny, ele.attributes.canonicalTitle))
-    button (appvall('https://kitsu.io/favicon.ico', txt,hcfg.get('kitsu')),vcfg.get('kitsu'),hcfg.get('kitsu'))
-}
-
-async function myanimelist(am) {
-    let data = await fetchJSON(new Request('https://myanimelist.net/search/prefix.json?type='+am+'&keyword='+tittle))
-    let txt = data.categories[0].items.map(ele => setdata('https://myanimelist.net/'+am+'/'+ele.id, ele.image_url, ele.name))
-    button (appvall('https://myanimelist.net/favicon.ico', txt,hcfg.get('myanimelist')),vcfg.get('myanimelist'),hcfg.get('myanimelist'));
-}
-
-async function anilist(am) {
-    let query = `
-query($search:String,$isAdult:Boolean){
-anime:Page(perPage:8){
-results:media(type:${am.toUpperCase()},isAdult:$isAdult,search:$search){
-id title{
-userPreferred
-}
-coverImage{
-medium
-}
-}
-}
-}`
-    let req = {
-        url:'https://graphql.anilist.co',
-        method: 'POST',
-        headers:{
-            'Content-Type': 'application/json',
-            'Accept': 'application/json',
-        },
-        data:JSON.stringify({
-            query: query,
-            variables: {search: tittle}
-        }),
-        responseType: 'json',
-    }
-    let res = await GM_xml(req)
-    let txt = res.data.anime.results.map(ele => setdata('https://anilist.co/'+am+'/'+ele.id, ele.coverImage.medium, ele.title.userPreferred))
-    button (appvall('https://anilist.co/img/icons/favicon-16x16.png', txt,hcfg.get('anilist')),vcfg.get('anilist'),hcfg.get('anilist'))
-}
-
-async function animeplanet(am) {
-    let data = await fetchDOM(new Request('https://www.anime-planet.com/'+am+'/all?name='+tittle))
-    let txt = []
-    if(data.querySelectorAll('#entry').length){
-        txt = [`<a href="${data.querySelector('meta[property="og:url"]').content}">
-<img src = "${new URL(data.querySelector('#entry div.mainEntry > source').getAttribute('src'), 'https://www.anime-planet.com/').href}">
-<p>${data.querySelector('#siteContainer > h1').textContent.trim()}</p>
-</a>`]
-    }
-    else{
-        txt = [...data.querySelectorAll('.card a')].map(ele => `
-<a href="${new URL(ele.pathname, 'https://www.anime-planet.com/').href}">
-<img src = "${new URL(ele.querySelector('source').dataset.src, 'https://www.anime-planet.com/').href}">
-<p>${ele.querySelector('.cardName').textContent.trim()}</p>
-</a>`)
-    }
-    button (appvall('https://www.anime-planet.com/favicon-32x32.png?v=WGowMEAKpM', txt,hcfg.get('animeplanet')),vcfg.get('animeplanet'),hcfg.get('animeplanet'))
-}
-
-//manga only:
-
-async function mangaupdates() {
-    let data = await fetchJSON(new Request('https://www.mangaupdates.com/series.html?output=json&search='+tittle))
-    let txt = data.results.items.map(ele => '<a href="https://www.mangaupdates.com/series.html?id='+ele.id+'"><p>'+ele.title+'</p></a>')
-    button (appvall('https://www.mangaupdates.com/favicon.ico', txt,hcfg.get('mangaupdates')),vcfg.get('mangaupdates'),hcfg.get('mangaupdates'))
-}
-
-async function madara(elem) {
-    let req = {
-        url:elem.fav,
-        method: 'GET',
-        headers: {
-            'Content-Type': 'application/x-www-form-urlencoded',
-            'x-referer': new URL(elem.fav).origin,
-        },
-        responseType: 'blob',
-    }
-    let fav = URL.createObjectURL(await GM_xml(req))
-    let data = await fetchDOM(new Request(new URL('/?post_type=wp-manga&s='+tittle, elem.url).href))
-    let txt = await Promise.all([...data.querySelectorAll("div.c-tabs-item__content")].map(async (ele) =>{
-        let element = ele.querySelector('source')
-        req.url = new URL(element.dataset.src || element.src || element.srcset)
-        let img = URL.createObjectURL(await GM_xml(req))
-        return '<a href="'+ele.querySelector('a').href+'"><img src = "'+img+'"><p>'+ele.querySelector('.post-title').textContent.trim()+'</p></a>'
-    }))
-    button (appvall(fav, txt,elem.Hdef),elem.vdef,elem.Hdef)
-}
-
-async function nelo_Kakalot(elem) {
-    let dattt = new FormData();
-    dattt.append('searchword',tittle.replace(' ','_'));
-    let req = {
-        url: elem.url,
-        method: 'POST',
-        data: dattt,
-        responseType: 'json',
-    }
-    let res = await GM_xml(req)
-    let txt = res.map(ele => setdata(ele.story_link ? ele.story_link : 'https://manganelo.com/manga/'+ele.id_encode, ele.image, createDOM(ele.name).textContent))
-    button (appvall(elem.fav, txt,elem.Hdef),elem.vdef,elem.Hdef)
-}
-
-async function mangafast() {
-    let data = await fetchDOM(new Request('https://mangafast.net/?s='+tittle))
-    let txt = [...data.querySelectorAll('.ls5 a:not(.lats)')].map(ele => `
-<a href="${ele.href}">
-<img src = "${ele.querySelector('source').dataset.src}">
-<p>${ele.textContent.trim()}</p>
-</a>`)
-    button (appvall('https://mangafast.net/icon.ico', txt,hcfg.get('mangafast')),vcfg.get('mangafast'),hcfg.get('mangafast'))
-}
-
-async function mangareader() {
-    let data = await fetchDOM(new Request('https://www.mangareader.net/search/?nsearch='+tittle))
-    let txt = [...data.querySelectorAll('.d54')].map(ele => `
-<a href="https://www.mangareader.net/${ele.querySelector('a').pathname}">
-<img src = "${ele.querySelector('.d56').dataset.src}">
-<p>${ele.querySelector('a').text.trim()}</p>
-</a>`)
-    button (appvall2('https://s11.mangareader.net/images/icons/mr-192.png', txt,hcfg.get('mangareader')),vcfg.get('mangareader'),hcfg.get('mangareader'))
-}
-
-async function bato() {
-    let data = await fetchDOM(new Request('https://bato.to/search?word='+tittle))
-    let txt = [...data.querySelectorAll('#series-list > div')].map(ele => `
-<a href="https://bato.to${ele.querySelector('a').pathname}">
-<img src = "${ele.querySelector('source').src}">
-<p>${ele.querySelector('a.item-title').text.trim()}</p>
-</a>`)
-    button (appvall('https://static.animemark.com/img/batoto/favicon.ico?v0', txt,hcfg.get('bato')),vcfg.get('bato'),hcfg.get('bato'))
-}
-
-async function fanfox() {
-    let data = await fetchDOM(new Request('http://fanfox.net/search?title='+tittle))
-    let txt = [...data.querySelectorAll('li > a')].map(ele => `
-<a href="https://fanfox.net${ele.pathname}">
-<img src = "${ele.querySelector('source').src}">
-<p>${ele.title.trim()}</p>
-</a>`)
-    button (appvall('http://fanfox.net/favicon.ico', txt,hcfg.get('fanfox')),vcfg.get('fanfox'),hcfg.get('fanfox'))
-}
-
-//anime only:
-
-async function nyaa() {
-    let data = await fetchDOM(new Request('https://nyaa.si/?f=0&c=0_0&s=seeders&o=desc&q='+tittle))
-    let txt = [...data.querySelectorAll('tbody tr')].map(ele => `
-<a href="${new URL(ele.querySelector('[colspan] a').pathname, 'https://nyaa.si/').href}">
-<p>${ele.querySelector('[colspan] a:last-child').textContent.trim().replaceAll('_', ' ')}</p>
-<p>${ele.querySelector('td:nth-child(6)').textContent}seeds</p>
-</a>`)
-    button (appvall2('https://nyaa.si/static/favicon.png', txt,hcfg.get('nyaa')),vcfg.get('nyaa'),hcfg.get('nyaa'))
-}
-
-async function livechart() {
-    let data = await fetchDOM(new Request('https://www.livechart.me/feeds/episodes'))
-    let txt = [...data.querySelectorAll('item')].map(ele => `
-<a href="${ele.querySelector('link').nextSibling.data.trim()}">
-<img src = "${ele.querySelector('enclosure').getAttribute('url')}">
-<p>${ele.querySelector('title').textContent.replace(/(#\d*$)/,'')}</p>
-</a>`)
-    button (appvall('https://www.livechart.me/apple-touch-icon-precomposed.png', txt,hcfg.get('livechart')),vcfg.get('livechart'),hcfg.get('livechart'))
-}
-
-async function animefreak() {
-    let data = await fetchJSON(new Request('https://www.animefreak.tv/search/topSearch?q='+tittle))
-    let txt = data.data.map(ele => `
-<a href="https://www.animefreak.tv/watch/${ele.seo_name}">
-<img src = "${ele.has_image ? 'https://www.animefreak.tv/meta/anime/' + ele.anime_id + '/' + ele.seo_name + '.jpg' : 'https://www.animefreak.tv/img/cover.jpg'}">
-<p>${ele.name}</p>
-</a>`)
-    button (appvall('https://www.animefreak.tv/favicon.ico', txt,hcfg.get('animefreak')),vcfg.get('animefreak'),hcfg.get('animefreak'))
-}
-
-async function animefever() {
-    let data = await fetchJSON(new Request('https://www.animefever.tv/api/anime/shows?search='+tittle.replaceAll(/’\S/g,'')))
-    let txt = data.data.map(ele => `
-<a href="https://www.animefever.tv/series/${ele.id}">
-<img src = "${ele.poster ? ele.poster.path : 'https://www.animefever.tv/themes/app/assets/dist/client/img/no-cover.3917711.png'}">
-<p>${ele.name}</p>
-</a>`)
-    button (appvall('https://www.animefever.tv/favicon.ico', txt,hcfg.get('animefever')),vcfg.get('animefever'),hcfg.get('animefever'))
-}
-
-async function animehub() {
-    let data = await fetchDOM(new Request('https://animehub.ac/search/'+(tittle.replaceAll(' ','+'))))
-    let txt = [...data.querySelectorAll('#main-content ul.ulclear > li')].map(ele => `
-<a href="${ele.querySelector('a').href}">
-<img src = "${ele.querySelector('source').src}">
-<p>${ele.querySelector('.item-detail').textContent.trim()}</p>
-</a>`)
-    button (appvall('https://static.animecdn.xyz/assets/animehub/images/favicon.png', txt,hcfg.get('animehub')),vcfg.get('animehub'),hcfg.get('animehub'))
-}
-
-async function animevibe() {
-    let data = await fetchDOM(new Request('https://animevibe.wtf/?s='+tittle))
-    let txt = [...data.querySelectorAll('div.col-md-12')].map(ele => `
-<a href="${ele.querySelector('a').href}">
-<img src = "${ele.querySelector('[style]').style.backgroundImage.match(/\bhttps?:\/\/\S+/gi)[0]}">
-<p>${ele.querySelector('a').textContent.trim()}</p>
-</a>`)
-    button (appvall('https://animevibe.wtf/wp-content/themes/animevibe/assets/img/logo/192x192.png', txt,hcfg.get('animevibe')),vcfg.get('animevibe'),hcfg.get('animevibe'))
-}
-
-async function anidb() {
-    let req = {
-        url:'https://anidb.net/perl-bin/animedb.pl?show=json&action=search&type=anime&query='+tittle,
-        method: 'GET',
-        headers:{
-            'Content-Type': 'application/json',
-            'x-lcontrol':'x-no-cache'
-        },
-        responseType: 'json',
-    }
-    let reqq = {
-        url:'',
-        method: 'GET',
-        headers: {
-            'Content-Type': 'application/x-www-form-urlencoded',
-            'x-referer': 'https://anidb.net',
-        },
-        responseType: 'blob',
-    }
-    let res = await GM_xml(req)
-    let txt = await Promise.all(res.filter((thing, index, self) =>index === self.findIndex((t) => (Number(t.id) === Number(thing.id)))).map(async (ele) =>{
-        reqq.url = ele.picurl.match(/src="([^"]*)"/)[1]
-        return setdata(ele.link, URL.createObjectURL(await GM_xml(reqq)), ele.name)
-    }))
-    button (appvall('https://cdn-eu.anidb.net/css/icons/touch/favicon-32x32.png?v=6APwgP3EOy', txt,hcfg.get('anidb')),vcfg.get('anidb'),hcfg.get('anidb'))
-}
-
-async function animepahe() {
-    let req = {
-        url:'https://animepahe.com/api?m=search&l=8&q='+tittle,
-        method: 'GET',
-        headers:{
-            'Content-Type': 'application/json',
-        },
-        responseType: 'json',
-    }
-    let res = await GM_xml(req)
-    let txt = res.data.map(ele => setdata('https://animepahe.com/anime/'+ele.session, ele.poster, ele.title))
-    button (appvall('https://animepahe.com/pikacon-32x32.png', txt,hcfg.get('animepahe')),vcfg.get('animepahe'),hcfg.get('animepahe'))
-}
-
-async function animedao() {
-    let data = await fetchDOM(new Request('https://animedao.to/search/?key='+tittle))
-    let txt = [...data.querySelectorAll('body > div.container.content > div:nth-child(2) > div > a')].map(ele => `
-<a href="https://animedao.to${ele.pathname}">
-<img src = "https://animedao.to/${ele.querySelector('source').dataset.src}">
-<p>${ele.querySelector('h4').textContent}</p>
-</a>`)
-    button (appvall('https://animedao.to/favicon.ico', txt,hcfg.get('animedao')),vcfg.get('animedao'),hcfg.get('animedao'))
-}
-
-async function gogoanime() {
-    let data = await fetchJSON(new Request('https://ajax.gogocdn.net/site/loadAjaxSearch?id=-1&link_web=https%3A%2F%2Fgogoanime.so%2F&keyword='+tittle))
-    let dom = createDOM(data.content)
-    let txt = [...dom.querySelectorAll('a')].map(ele => `
-<a href="${ele.href}">
-<img src = "${ele.querySelector('[style]').style.backgroundImage.match(/url\("([^"]*)"\)/)[1]}">
-<p>${ele.textContent}</p>
-</a>`)
-    button (appvall('https://cdn.gogocdn.net/files/gogo/img/favicon.ico', txt,hcfg.get('gogoanime')),vcfg.get('gogoanime'),hcfg.get('gogoanime'))
-}
-
-async function crunchyroll() {
-    let data = await fetchDOM(new Request('https://www.crunchyroll.com/ajax/?req=RpcApiSearch_GetSearchCandidates'))
-    let son = JSON.parse(data.textContent.match(/\/\*-secure-([^\*]*)\*\//)[1].trim())
-    let txt = son.data.filter(ele => ele.name.includes(tittle)).map(ele => `
-<a href="https://www.crunchyroll.com${ele.link}">
-<img src = "${ele.img.replace('small','full')}">
-<p>${ele.name}</p>
-</a>`)
-    button (appvall('https://www.crunchyroll.com/favicons/favicon-16x16.png', txt,hcfg.get('crunchyroll')),vcfg.get('crunchyroll'),hcfg.get('crunchyroll'))
-}
-
-async function funimation() {
-    let data = await fetchDOM(new Request('https://www.funimation.com/pred-search/'+tittle))
-    let txt = [...data.querySelectorAll('source')].map(ele => `
-<a href="https://www.funimation.com${ele.parentElement.pathname}">
-<img src = "${ele.dataset.src}">
-<p>${ele.title.trim()}</p>
-</a>`)
-    button (appvall('https://static.funimation.com/static/img/favicon.ico?v=1607308407.2988396', txt,hcfg.get('funimation')),vcfg.get('funimation'),hcfg.get('funimation'))
-}
-
-async function nineanime() {
-    let data = await fetchJSON(new Request('https://www12.9anime.to/ajax/anime/search?keyword='+tittle))
-    let dom = createDOM(data.html)
-    let txt = [...dom.querySelectorAll('a source')].map(ele => `
-<a href="https://www.funimation.com${ele.parentElement.pathname}">
-<img src = "${ele.src}">
-<p>${ele.nextElementSibling.querySelector('div').textContent.trim()}</p>
-</a>`)
-    button (appvall('https://www12.9anime.to/assets/9anime/favicons/favicon.png?v1', txt,hcfg.get('9anime')),vcfg.get('9anime'),hcfg.get('9anime'))
-}
-
-async function netflix() {
-    let data = await fetchDOM(new Request('https://www.netflix.com/search?q='+tittle))
-    let txt = [...data.querySelectorAll("div.ptrack-content > a.slider-refocus")].map(ele => setdata( 'https://www.funimation.com'+ele.pathname, ele.querySelector('source').src, ele.textContent.trim() ))
-    button (appvall('https://assets.nflxext.com/us/ffe/siteui/common/icons/nficon2016.ico', txt,hcfg.get('netflix')),vcfg.get('netflix'),hcfg.get('netflix'))
-}
-
-async function masterani() {
-    let data = await fetchJSON('https://www.masterani.one//home/autocompleteajax?term='+tittle.replace(' ','+'))
-    let txt = data.map(ele => setdata( ele.url, ele.image, ele.title ))
-    button (appvall('https://www.masterani.one/uploads/system_logo/favicon_5f8da71b87527.png', txt,hcfg.get('masterani')),vcfg.get('masterani'),hcfg.get('masterani'))
-}
 
 // functions
 
