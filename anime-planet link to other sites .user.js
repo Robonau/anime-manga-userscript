@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         anime/manga link to other sites
 // @namespace    https://github.com/Robonau/anime-manga-userscript
-// @version      1.5.5
+// @version      1.5.6
 // @description  add kitsu/mangaupdates/myanimelist etc buttons to pages
 // @author       robo
 // @include      https://kitsu.io/*
@@ -30,6 +30,7 @@
 // @history      1.5.2 add some stuff
 // @history      1.5.4 add a bunch of sites
 // @history      1.5.5 deal with weird pic sizes
+// @history      1.5.6 netflix
 // @connect      *
 // ==/UserScript==
 
@@ -65,6 +66,7 @@ let sites = [
     {name:'crunchyroll',Vdef:1,Hdef:0},
     {name:'funimation',Vdef:1,Hdef:0},
     {name:'9anime',Vdef:1,Hdef:0},
+    {name:'netflix',Vdef:1,Hdef:0},
 ]
 
 let endis = {}
@@ -225,6 +227,7 @@ function doAllAnime(){
     cfg.get('crunchyroll') ? crunchyroll() : null
     cfg.get('funimation') ? funimation() : null
     cfg.get('9anime') ? nineanime() : null
+    cfg.get('netflix') ? netflix() : null
 }
 
 function doAllManga(){
@@ -609,6 +612,16 @@ async function nineanime() {
     button (appvall('https://www12.9anime.to/assets/9anime/favicons/favicon.png?v1', txt,hcfg.get('9anime')),vcfg.get('9anime'),hcfg.get('9anime'))
 }
 
+async function netflix() {
+    let data = await fetchDOM(new Request('https://www.netflix.com/search?q='+tittle))
+    let txt = [...data.querySelectorAll("div.ptrack-content > a.slider-refocus")].map(ele => `
+<a href="https://www.funimation.com${ele.pathname}">
+<img src = "${ele.querySelector('source').src}">
+<p>${ele.textContent.trim()}</p>
+</a>`)
+    button (appvall('https://assets.nflxext.com/us/ffe/siteui/common/icons/nficon2016.ico', txt,hcfg.get('netflix')),vcfg.get('netflix'),hcfg.get('netflix'))
+}
+
 // functions
 
 window.onclick = function(event) {
@@ -735,6 +748,7 @@ async function GM_xml(req){
 function setdata( href, img, txt ) {
     return (`<a href="${href}"><img src = "${img}"><p>${txt}</p></a>`)
 }
+
 
 
 
