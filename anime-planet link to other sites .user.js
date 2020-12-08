@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         anime/manga link to other sites
 // @namespace    https://github.com/Robonau/anime-manga-userscript
-// @version      1.5.6
+// @version      1.5.7
 // @description  add kitsu/mangaupdates/myanimelist etc buttons to pages
 // @author       robo
 // @include      https://kitsu.io/*
@@ -31,6 +31,7 @@
 // @history      1.5.4 add a bunch of sites
 // @history      1.5.5 deal with weird pic sizes
 // @history      1.5.6 netflix
+// @history      1.5.7 masterani & fix anime planet pages with banners
 // @connect      *
 // ==/UserScript==
 
@@ -67,6 +68,8 @@ let sites = [
     {name:'funimation',Vdef:1,Hdef:0},
     {name:'9anime',Vdef:1,Hdef:0},
     {name:'netflix',Vdef:1,Hdef:0},
+    {name:'masterani',Vdef:1,Hdef:0},
+
 ]
 
 let endis = {}
@@ -124,7 +127,7 @@ cfg.get('mangakakalot') ? nelo_Kakalott.push({url:'https://mangakakalot.com/home
 if (window.location.href.includes("https://www.anime-planet.com")){
     if($('#entry').length){
         inafter = $('#siteContainer > nav')[0].previousElementSibling
-        tittle = $('#siteContainer > h1')[0].textContent.trim()
+        tittle = $('#siteContainer  h1')[0].textContent.trim()
         if (window.location.href.includes("/manga/")){
             cfg.get('kitsu') ? kitsu('manga') : null;
             cfg.get('mangaupdates') ? mangaupdates() : null;
@@ -228,6 +231,8 @@ function doAllAnime(){
     cfg.get('funimation') ? funimation() : null
     cfg.get('9anime') ? nineanime() : null
     cfg.get('netflix') ? netflix() : null
+    cfg.get('masterani') ? masterani() : null
+
 }
 
 function doAllManga(){
@@ -614,12 +619,14 @@ async function nineanime() {
 
 async function netflix() {
     let data = await fetchDOM(new Request('https://www.netflix.com/search?q='+tittle))
-    let txt = [...data.querySelectorAll("div.ptrack-content > a.slider-refocus")].map(ele => `
-<a href="https://www.funimation.com${ele.pathname}">
-<img src = "${ele.querySelector('source').src}">
-<p>${ele.textContent.trim()}</p>
-</a>`)
+    let txt = [...data.querySelectorAll("div.ptrack-content > a.slider-refocus")].map(ele => setdata( 'https://www.funimation.com'+ele.pathname, ele.querySelector('source').src, ele.textContent.trim() ))
     button (appvall('https://assets.nflxext.com/us/ffe/siteui/common/icons/nficon2016.ico', txt,hcfg.get('netflix')),vcfg.get('netflix'),hcfg.get('netflix'))
+}
+
+async function masterani() {
+    let data = await fetchJSON('https://www.masterani.one//home/autocompleteajax?term='+tittle.replace(' ','+'))
+    let txt = data.map(ele => setdata( ele.url, ele.image, ele.title ))
+    button (appvall('https://www.masterani.one/uploads/system_logo/favicon_5f8da71b87527.png', txt,hcfg.get('masterani')),vcfg.get('masterani'),hcfg.get('masterani'))
 }
 
 // functions
