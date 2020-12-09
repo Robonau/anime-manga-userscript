@@ -177,7 +177,6 @@ medium
     },
 
     animeplanet: async (am) => {
-        let data = await fetchDOM(new Request('https://www.anime-planet.com/'+am+'/all?name='+tittle))
         let data = await fetchJSON(new Request('https://www.anime-planet.com/autocomplete?type='+am+'&show_slug=false&q='+tittle.replace(' ','+')))
         let txt = data.data.map(ele => setdata( 'https://www.anime-planet.com'+ele.url, 'https://www.anime-planet.com'+ele.img, ele.main_name.trim()))
         button (appvall('https://www.anime-planet.com/favicon-32x32.png?v=WGowMEAKpM', txt,hcfg.get('animeplanet')),vcfg.get('animeplanet'),hcfg.get('animeplanet'))
