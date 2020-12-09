@@ -1,10 +1,10 @@
 // ==UserScript==
 // @name         anime/manga link to other sites
-// @namespace    https://github.com/Robonau/anime-manga-userscript
-// @version      1.6.2
+// @namespace    https://gist.github.com/Robonau/2ff6f09bf6de503033a21914d7e6ccc3
+// @version      1.6.4
 // @description  add kitsu/mangaupdates/myanimelist etc buttons to pages
 // @author       robo
-// @updateURL    https://gist.githubusercontent.com/Robonau/2ff6f09bf6de503033a21914d7e6ccc3/raw
+// @updateURL    https://gist.github.com/Robonau/2ff6f09bf6de503033a21914d7e6ccc3/raw/anime-planet%20link%20to%20other%20sites%20.user.js#bypass=true
 // @include      https://kitsu.io/*
 // @include      https://www.anime-planet.com/*
 // @include      https://www.mangaupdates.com/*
@@ -35,6 +35,8 @@
 // @history      1.5.7 masterani & fix anime planet pages with banners
 // @history      1.6 made it easyer to add stuff
 // @history      1.6.1 anime plaet using json search
+// @history      1.6.3 update update urls
+// @history      1.6.4 fixed updating from gist
 // @connect      *
 // ==/UserScript==
 
