@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         anime/manga link to other sites
 // @namespace    https://github.com/Robonau/anime-manga-userscript
-// @version      1.6
+// @version      1.6.1
 // @description  add kitsu/mangaupdates/myanimelist etc buttons to pages
 // @author       robo
 // @include      https://kitsu.io/*
@@ -33,6 +33,7 @@
 // @history      1.5.6 netflix
 // @history      1.5.7 masterani & fix anime planet pages with banners
 // @history      1.6 made it easyer to add stuff
+// @history      1.6.1 anime plaet using json search
 // @connect      *
 // ==/UserScript==
 
@@ -177,20 +178,8 @@ medium
 
     animeplanet: async (am) => {
         let data = await fetchDOM(new Request('https://www.anime-planet.com/'+am+'/all?name='+tittle))
-        let txt = []
-        if(data.querySelectorAll('#entry').length){
-            txt = [`<a href="${data.querySelector('meta[property="og:url"]').content}">
-<img src = "${new URL(data.querySelector('#entry div.mainEntry > source').getAttribute('src'), 'https://www.anime-planet.com/').href}">
-<p>${data.querySelector('#siteContainer > h1').textContent.trim()}</p>
-</a>`]
-        }
-        else{
-            txt = [...data.querySelectorAll('.card a')].map(ele => `
-<a href="${new URL(ele.pathname, 'https://www.anime-planet.com/').href}">
-<img src = "${new URL(ele.querySelector('source').dataset.src, 'https://www.anime-planet.com/').href}">
-<p>${ele.querySelector('.cardName').textContent.trim()}</p>
-</a>`)
-        }
+        let data = await fetchJSON(new Request('https://www.anime-planet.com/autocomplete?type='+am+'&show_slug=false&q='+tittle.replace(' ','+')))
+        let txt = data.data.map(ele => setdata( 'https://www.anime-planet.com'+ele.url, 'https://www.anime-planet.com'+ele.img, ele.main_name.trim()))
         button (appvall('https://www.anime-planet.com/favicon-32x32.png?v=WGowMEAKpM', txt,hcfg.get('animeplanet')),vcfg.get('animeplanet'),hcfg.get('animeplanet'))
     },
 
@@ -268,13 +257,13 @@ medium
     },
 
     fanfox: async () => {
-        let data = await fetchDOM(new Request('http://fanfox.net/search?title='+tittle))
+        let data = await fetchDOM(new Request('https://fanfox.net/search?title='+tittle))
         let txt = [...data.querySelectorAll('li > a')].map(ele => `
 <a href="https://fanfox.net${ele.pathname}">
 <img src = "${ele.querySelector('source').src}">
 <p>${ele.title.trim()}</p>
 </a>`)
-        button (appvall('http://fanfox.net/favicon.ico', txt,hcfg.get('fanfox')),vcfg.get('fanfox'),hcfg.get('fanfox'))
+        button (appvall('https://fanfox.net/favicon.ico', txt,hcfg.get('fanfox')),vcfg.get('fanfox'),hcfg.get('fanfox'))
     },
 
     //anime only:
