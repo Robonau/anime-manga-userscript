@@ -1,9 +1,10 @@
 // ==UserScript==
 // @name         anime/manga link to other sites
 // @namespace    https://github.com/Robonau/anime-manga-userscript
-// @version      1.6.1
+// @version      1.6.2
 // @description  add kitsu/mangaupdates/myanimelist etc buttons to pages
 // @author       robo
+// @updateURL    https://gist.githubusercontent.com/Robonau/2ff6f09bf6de503033a21914d7e6ccc3/raw
 // @include      https://kitsu.io/*
 // @include      https://www.anime-planet.com/*
 // @include      https://www.mangaupdates.com/*
@@ -527,12 +528,10 @@ border: none;
 cursor: pointer;
 width: 16px;
 }
-
 .dropdown1 {
 position: relative;
 display: inline-block;
 }
-
 .dropdown1-content {
 width: 350px;
 display: none;
@@ -541,7 +540,6 @@ background-color: #202324;
 z-index: 1;
 border: ridge;
 }
-
 .dropdown1-content a {
 color: rgb(247, 91, 67);
 max-height: 100px;
@@ -551,11 +549,9 @@ background: 0;
 display: flex;
 z-index: 1000;
 }
-
 .dropdown1 a:hover {
 background-color: rgb(27, 29, 30);
 }
-
 .dropdown1 a img {
 max-height: 100px;
 max-width: 100px;
@@ -563,7 +559,6 @@ object-fit: scale-down;
 object-position: top left;
 padding-bottom: 5px;
 }
-
 .dropdown1 a p {
 display: inline-block;
 vertical-align: top;
@@ -572,19 +567,15 @@ padding-left: 10px;
 margin: 0.25em;
 font-size: 16px
 }
-
 .show1 {display: block;}
-
 .aka > * {
 padding-right: 5px;
 }
-
 .aka {
 font-weight: 400;
 margin-top: 5px;
 flex: 0 0 100%;
 }
-
 `)}
 
 // functions
@@ -713,11 +704,3 @@ async function GM_xml(req){
 function setdata( href, img, txt ) {
     return (`<a href="${href}"><img src = "${img}"><p>${txt}</p></a>`)
 }
-
-
-
-
-
-
-
-
